@@ -1378,9 +1378,8 @@
 
   // ─── FINAL SCENE ─────────────────────────────────────────────────
   function sceneFinal(){
-    const now   = new Date();
-    const ts    = now.toISOString().replace('T',' ').substring(0,19) + ' UTC';
-    const epoch = Math.floor(now.getTime()/1000);
+    const ts    = '2026-07-14 22:33:15 UTC';
+    const epoch = 1784068395;
 
     return `
       <div class="act">
@@ -1395,26 +1394,57 @@
             <div class="cert-header">
               <div class="cert-seal">🏛️</div>
               <div class="cert-issuer">Joseph &amp; Margaret Ivy Foundation</div>
-              <div class="cert-title">Certificate of Discharge</div>
-              <div class="cert-subtitle" style="color:#C4B5FD; font-weight:500; margin-bottom:0.35rem;">Deal Evidence Package — Stewardship Accountability Layer</div>
-              <div class="cert-subtitle">Stewardship Lifecycle Infrastructure Management</div>
+              <div class="cert-title">Deal Evidence Certificate</div>
+              <div class="cert-subtitle" style="color:#C4B5FD; font-weight:500;">Status: Discharged</div>
             </div>
 
             <div class="cert-body">
 
-              <div class="cert-section">
-                <div class="cert-section-label">Obligation Identity</div>
+              <div class="cert-section" style="background: rgba(74,222,128,0.05); border: 1px solid rgba(74,222,128,0.25); border-radius: 8px; padding: 1.25rem;">
+                <div class="cert-section-label" style="color: #4ADE80; margin-bottom: 0.85rem;">Executive Summary — Deal Evidence</div>
                 <div class="cert-field-row">
                   <div class="cert-field">
-                    <div class="cert-field-label">UDT Reference</div>
+                    <div class="cert-field-label">Transaction Status</div>
+                    <div class="cert-field-value green">✓ Successfully Discharged</div>
+                  </div>
+                  <div class="cert-field">
+                    <div class="cert-field-label">Evidence Integrity</div>
+                    <div class="cert-field-value green">✓ Verified</div>
+                  </div>
+                  <div class="cert-field">
+                    <div class="cert-field-label">Disclosure Status</div>
+                    <div class="cert-field-value green">✓ Complete</div>
+                  </div>
+                  <div class="cert-field">
+                    <div class="cert-field-label">Access Controls</div>
+                    <div class="cert-field-value green">✓ Revoked</div>
+                  </div>
+                  <div class="cert-field">
+                    <div class="cert-field-label">MNPI</div>
+                    <div class="cert-field-value green">✓ Accounted For</div>
+                  </div>
+                  <div class="cert-field">
+                    <div class="cert-field-label">Evidence Package</div>
+                    <div class="cert-field-value cyan">🔒 Cryptographically Sealed</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="cert-divider"></div>
+
+              <div class="cert-section">
+                <div class="cert-section-label">Transaction Reference</div>
+                <div class="cert-field-row">
+                  <div class="cert-field">
+                    <div class="cert-field-label">Evidence Package ID</div>
                     <div class="cert-field-value mono">UDT-DEAL-2026-IB-0391</div>
                   </div>
                   <div class="cert-field">
-                    <div class="cert-field-label">Template Type</div>
+                    <div class="cert-field-label">Transaction Type</div>
                     <div class="cert-field-value">Deal Qualification — Fairness Opinion</div>
                   </div>
                   <div class="cert-field">
-                    <div class="cert-field-label">Domain</div>
+                    <div class="cert-field-label">Business Domain</div>
                     <div class="cert-field-value">Investment Banking — M&amp;A Advisory</div>
                   </div>
                   <div class="cert-field">
@@ -1460,7 +1490,7 @@
                     <div class="cert-field-value mono">2026-06-04 14:22:07 UTC</div>
                   </div>
                   <div class="cert-field">
-                    <div class="cert-field-label">Discharge Timestamp</div>
+                    <div class="cert-field-label">Certificate of Discharge<br>Issued</div>
                     <div class="cert-field-value mono gold">${ts}</div>
                   </div>
                   <div class="cert-field">
@@ -1545,32 +1575,32 @@
               <div class="cert-divider"></div>
 
               <div class="cert-section">
-                <div class="cert-section-label">Zero-Persistence Cryptographic Seal (ZPCB)</div>
-                <div class="cert-hash">sha256:f7a8b9c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4&nbsp;&nbsp;//&nbsp;&nbsp;epoch:${epoch}</div>
-              </div>
-
-              <div class="cert-divider"></div>
-
-              <div class="cert-section">
-                <div class="cert-section-label">Sovereign Rationale Shield</div>
-                <div class="cert-field-row">
+                <div class="cert-section-label">Technical Integrity</div>
+                
+                <div class="cert-field-row" style="margin-bottom: 1rem;">
                   <div class="cert-field">
-                    <div class="cert-field-label">Deal Reasoning Retained By</div>
-                    <div class="cert-field-value">Transaction Steward — Private Record</div>
+                    <div class="cert-field-label">Certificate of Discharge<br>Issued</div>
+                    <div class="cert-field-value mono gold">${ts}</div>
                   </div>
                   <div class="cert-field">
-                    <div class="cert-field-label">Proprietary Data Retained</div>
-                    <div class="cert-field-value green">None — ZPCB Purged</div>
+                    <div class="cert-field-label">Certificate Version</div>
+                    <div class="cert-field-value mono">v1.4.0-SLIM</div>
                   </div>
                   <div class="cert-field">
-                    <div class="cert-field-label">Raw Deal Data Exposed</div>
-                    <div class="cert-field-value green">Never Left Your Systems</div>
+                    <div class="cert-field-label">ZPCB Verification</div>
+                    <div class="cert-field-value green">Zero-Persistence Confirmed</div>
                   </div>
                   <div class="cert-field">
-                    <div class="cert-field-label">SEC Examiner Ready</div>
-                    <div class="cert-field-value green">Yes — Cryptographically Verified</div>
+                    <div class="cert-field-label">Foundation Signature</div>
+                    <div class="cert-field-value cyan">Valid — JMIF</div>
                   </div>
                 </div>
+
+                <div class="cert-field-label">SHA-256 Evidence Seal</div>
+                <div class="cert-hash" style="margin-bottom: 1rem;">sha256:f7a8b9c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4&nbsp;&nbsp;//&nbsp;&nbsp;epoch:${epoch}</div>
+
+                <div class="cert-field-label">Verification Endpoint</div>
+                <div class="cert-field-value mono" style="font-size:0.75rem; color:var(--muted); word-break:break-all;">https://foundation.slim-api.com/verify/UDT-DEAL-2026-IB-0391</div>
               </div>
 
             </div>
