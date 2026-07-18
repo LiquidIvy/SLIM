@@ -617,6 +617,154 @@
   }
   .cert-verify-link:hover{ opacity: 1; }
 
+  /* ─── FOUR-PARTY ATTESTATION BLOCKS ──────────────────────────── */
+  .attestation-upper{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .att-block{
+    border-radius: 10px;
+    padding: 1rem 1.1rem 1rem;
+    position: relative;
+  }
+
+  .att-block.finance{
+    background: rgba(245,158,11,0.05);
+    border: 1px solid rgba(245,158,11,0.28);
+  }
+
+  .att-block.slim{
+    background: rgba(124,58,237,0.06);
+    border: 1px solid rgba(124,58,237,0.28);
+  }
+
+  .att-block.legal{
+    background: rgba(6,182,212,0.05);
+    border: 1px solid rgba(6,182,212,0.28);
+  }
+
+  /* Ledger spans full width — binding element */
+  .att-block.ledger{
+    background: rgba(74,222,128,0.04);
+    border: 1px solid rgba(74,222,128,0.26);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.85rem 1.5rem;
+    align-items: center;
+    padding: 1rem 1.25rem;
+  }
+
+  .att-ledger-left{}
+  .att-ledger-right{
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  .att-number{
+    font-family: var(--font-mono);
+    font-size: 0.57rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .att-block.finance .att-number{ color: var(--seal-gold); }
+  .att-block.slim .att-number{ color: #C4B5FD; }
+  .att-block.legal .att-number{ color: var(--cyan); }
+  .att-block.ledger .att-number{ color: #4ADE80; }
+
+  .att-role{
+    font-family: var(--font-display);
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--starlight);
+    margin-bottom: 0.35rem;
+    line-height: 1.2;
+  }
+
+  .att-certifies{
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+  }
+
+  .att-block.ledger .att-certifies{
+    margin-bottom: 0;
+    font-size: 0.8rem;
+  }
+
+  .att-sig{
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    color: var(--body-text);
+    background: rgba(0,0,0,0.28);
+    border-radius: 4px;
+    padding: 0.4rem 0.6rem;
+    word-break: break-all;
+    letter-spacing: 0.02em;
+    line-height: 1.55;
+  }
+
+  .att-sig-label{
+    display: block;
+    font-size: 0.52rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+  }
+
+  .att-block.finance .att-sig-label{ color: var(--seal-gold); opacity: 0.7; }
+  .att-block.slim .att-sig-label{ color: #C4B5FD; opacity: 0.7; }
+  .att-block.legal .att-sig-label{ color: var(--cyan); opacity: 0.7; }
+  .att-block.ledger .att-sig-label{ color: #4ADE80; opacity: 0.7; }
+
+  .att-pill{
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.6rem;
+    border-radius: 20px;
+    white-space: nowrap;
+    margin-bottom: 0.5rem;
+    display: inline-block;
+  }
+
+  .att-pill.amber{ background: rgba(245,158,11,0.12); color: var(--seal-gold); border: 1px solid rgba(245,158,11,0.3); }
+  .att-pill.violet{ background: rgba(124,58,237,0.15); color: #C4B5FD; border: 1px solid rgba(124,58,237,0.35); }
+  .att-pill.cyan{ background: rgba(6,182,212,0.12); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
+  .att-pill.green{ background: rgba(74,222,128,0.1); color: #4ADE80; border: 1px solid rgba(74,222,128,0.28); }
+
+  .ledger-bind-label{
+    font-family: var(--font-mono);
+    font-size: 0.55rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: rgba(74,222,128,0.5);
+    text-align: center;
+    padding: 0.35rem 0;
+    position: relative;
+  }
+
+  .ledger-bind-label::before,
+  .ledger-bind-label::after{
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 30%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(74,222,128,0.2));
+  }
+  .ledger-bind-label::before{ left: 0; }
+  .ledger-bind-label::after{ right: 0; transform: scaleX(-1); }
+
   /* ─── END OF WATCH ───────────────────────────────────────────── */
   .end-of-watch{
     text-align: center;
@@ -962,6 +1110,9 @@
     .cert-field-row{ grid-template-columns: 1fr; }
     .dat-header{ flex-direction: column; gap: 0.6rem; }
     .wmk-header{ flex-direction: column; gap: 0.6rem; }
+    .attestation-upper{ grid-template-columns: 1fr; }
+    .att-block.ledger{ grid-template-columns: 1fr; }
+    .att-ledger-right{ text-align: left; }
   }
 </style>
 </head>
@@ -1383,9 +1534,9 @@
 
     return `
       <div class="act">
-        <div class="act-eyebrow">Certificate of Discharge — Entlastung</div>
-        <h1 class="act-title" style="font-size:1.55rem; margin-bottom:0.4rem;">Everything resolves.</h1>
-        <p class="act-sub" style="margin-bottom:1.5rem;">This is what you hand the SEC examiner. Every decision, every transfer, every offsite access, every document token, every forensic watermark — documented, sealed, verifiable — without a single line of proprietary deal reasoning leaving your systems.</p>
+        <div class="act-eyebrow">Deal Evidence Certificate — Four Attestations</div>
+        <h1 class="act-title" style="font-size:1.55rem; margin-bottom:0.4rem;">The M&A equivalent of a vital record.</h1>
+        <p class="act-sub" style="margin-bottom:1.5rem;">Four parties. One cryptographic seal. Zero disputes. Each authority certifies only the domain they own. The ledger binds all four into an instrument the SEC examiner cannot argue with — and your proprietary deal reasoning never leaves your systems.</p>
 
         <div class="cert-wrap">
           <div class="cert">
@@ -1395,11 +1546,76 @@
               <div class="cert-seal">🏛️</div>
               <div class="cert-issuer">Joseph &amp; Margaret Ivy Foundation</div>
               <div class="cert-title">Deal Evidence Certificate</div>
-              <div class="cert-subtitle" style="color:#C4B5FD; font-weight:500;">Status: Discharged</div>
+              <div class="cert-subtitle" style="color:#C4B5FD; font-weight:500;">Status: Discharged — Four-Party Attestation Complete</div>
             </div>
 
             <div class="cert-body">
 
+              <!-- ── FOUR ATTESTATIONS ── -->
+              <div class="cert-section">
+                <div class="cert-section-label">Four Attestations — Co-Signed Closing Instrument</div>
+
+                <div class="attestation-upper">
+
+                  <div class="att-block finance">
+                    <div class="att-pill amber">✓ Signed</div>
+                    <div class="att-number">Attestation I · Finance</div>
+                    <div class="att-role">Audit / Finance Lead</div>
+                    <div class="att-certifies">Certifies the financial baseline, normalized working capital, and adjusted EBITDA quality underlying this transaction.</div>
+                    <div class="att-sig">
+                      <span class="att-sig-label">Authority Signature</span>
+                      hmac-sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2
+                    </div>
+                  </div>
+
+                  <div class="att-block slim">
+                    <div class="att-pill violet">✓ Signed</div>
+                    <div class="att-number">Attestation II · Document Integrity</div>
+                    <div class="att-role">Data Room Custodian — SLIM</div>
+                    <div class="att-certifies">Certifies the cryptographic hash of every disclosed document, the complete chain of custody, and the full lifecycle of every access token and offsite record.</div>
+                    <div class="att-sig">
+                      <span class="att-sig-label">Authority Signature</span>
+                      hmac-sha256:f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4
+                    </div>
+                  </div>
+
+                  <div class="att-block legal">
+                    <div class="att-pill cyan">✓ Signed</div>
+                    <div class="att-number">Attestation III · Legal</div>
+                    <div class="att-role">External Legal Counsel</div>
+                    <div class="att-certifies">Certifies no undisclosed litigation, indemnity schedules are complete, IP chain of title is verified, and the disclosed universe represents all known legal exposure.</div>
+                    <div class="att-sig">
+                      <span class="att-sig-label">Authority Signature</span>
+                      hmac-sha256:9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Binding label between upper three and ledger -->
+                <div class="ledger-bind-label">Bound by Cryptographic Ledger</div>
+
+                <!-- Ledger — full width binding block -->
+                <div class="att-block ledger">
+                  <div class="att-ledger-left">
+                    <div class="att-pill green">Immutable</div>
+                    <div class="att-number">Attestation IV · Binding Authority</div>
+                    <div class="att-role">The Cryptographic Ledger</div>
+                    <div class="att-certifies">Timestamps each of the three attestations above independently. Binds all three under a single SHA-256 seal. Non-repudiable. Cannot be altered after issuance.</div>
+                  </div>
+                  <div class="att-ledger-right">
+                    <div class="att-sig" style="min-width:180px; text-align:left;">
+                      <span class="att-sig-label">Ledger Seal</span>
+                      sha256:f7a8b9c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <div class="cert-divider"></div>
+
+              <!-- ── EXECUTIVE SUMMARY ── -->
               <div class="cert-section" style="background: rgba(74,222,128,0.05); border: 1px solid rgba(74,222,128,0.25); border-radius: 8px; padding: 1.25rem;">
                 <div class="cert-section-label" style="color: #4ADE80; margin-bottom: 0.85rem;">Executive Summary — Deal Evidence</div>
                 <div class="cert-field-row">
@@ -1432,6 +1648,7 @@
 
               <div class="cert-divider"></div>
 
+              <!-- ── TRANSACTION REFERENCE ── -->
               <div class="cert-section">
                 <div class="cert-section-label">Transaction Reference</div>
                 <div class="cert-field-row">
@@ -1456,6 +1673,7 @@
 
               <div class="cert-divider"></div>
 
+              <!-- ── CHAIN OF CUSTODY ── -->
               <div class="cert-section">
                 <div class="cert-section-label">Chain of Custody</div>
                 <div class="cert-chain">
@@ -1478,6 +1696,7 @@
 
               <div class="cert-divider"></div>
 
+              <!-- ── LIFECYCLE TIMELINE ── -->
               <div class="cert-section">
                 <div class="cert-section-label">Lifecycle Timeline</div>
                 <div class="cert-field-row">
@@ -1490,7 +1709,7 @@
                     <div class="cert-field-value mono">2026-06-04 14:22:07 UTC</div>
                   </div>
                   <div class="cert-field">
-                    <div class="cert-field-label">Certificate of Discharge<br>Issued</div>
+                    <div class="cert-field-label">Certificate Issued</div>
                     <div class="cert-field-value mono gold">${ts}</div>
                   </div>
                   <div class="cert-field">
@@ -1502,6 +1721,7 @@
 
               <div class="cert-divider"></div>
 
+              <!-- ── LIBRARY CARD ── -->
               <div class="cert-section">
                 <div class="cert-section-label">Offsite Access — Library Card</div>
                 <div class="cert-field-row">
@@ -1526,6 +1746,7 @@
 
               <div class="cert-divider"></div>
 
+              <!-- ── DOCUMENT TOKENS ── -->
               <div class="cert-section">
                 <div class="cert-section-label">Document Access — Perimeter Tokens</div>
                 <div class="cert-field-row">
@@ -1550,6 +1771,7 @@
 
               <div class="cert-divider"></div>
 
+              <!-- ── WATERMARKS ── -->
               <div class="cert-section">
                 <div class="cert-section-label">Visual Forensic Watermarks</div>
                 <div class="cert-field-row">
@@ -1574,17 +1796,22 @@
 
               <div class="cert-divider"></div>
 
+              <!-- ── TECHNICAL INTEGRITY ── -->
               <div class="cert-section">
                 <div class="cert-section-label">Technical Integrity</div>
-                
+
                 <div class="cert-field-row" style="margin-bottom: 1rem;">
                   <div class="cert-field">
-                    <div class="cert-field-label">Certificate of Discharge<br>Issued</div>
+                    <div class="cert-field-label">Certificate Issued</div>
                     <div class="cert-field-value mono gold">${ts}</div>
                   </div>
                   <div class="cert-field">
                     <div class="cert-field-label">Certificate Version</div>
                     <div class="cert-field-value mono">v1.4.0-SLIM</div>
+                  </div>
+                  <div class="cert-field">
+                    <div class="cert-field-label">Four-Party Attestation</div>
+                    <div class="cert-field-value green">Complete — All Signatories Co-Signed</div>
                   </div>
                   <div class="cert-field">
                     <div class="cert-field-label">ZPCB Verification</div>
@@ -1608,7 +1835,7 @@
             <div class="cert-footer">
               <div class="cert-footer-status">
                 <div class="dot"></div>
-                Foundation Verified — Certificate Valid
+                Four-Party Attestation — Certificate Valid
               </div>
               <a class="cert-verify-link" href="https://foundation.slim-api.com/verify/UDT-DEAL-2026-IB-0391" target="_blank">
                 foundation.slim-api.com/verify/UDT-DEAL-2026-IB-0391 ↗
@@ -1618,13 +1845,13 @@
           </div>
         </div>
 
-        ${voiceHTML('purple','Purple Coach','This is what you hand the SEC examiner. Every decision, every transfer, every offsite access, every document token — documented, sealed, verifiable. Every instance that left the building carries a forensic watermark embedded in its visual canvas — permanently. If it ever surfaces somewhere it should not, the token maps back to this record before the conversation begins. Without a single line of proprietary deal reasoning leaving your systems. The VDR closed the deal room. SLIM closed the liability.')}
+        ${voiceHTML('purple','Purple Coach','Four parties signed this instrument. The finance lead certified the numbers. SLIM certified every document that moved, every door that opened, and every door that closed. Legal counsel certified the universe of known exposure. The ledger bound all three under a seal that cannot be altered after the fact. You don\'t dispute a vital record. When four authorities co-sign the same cryptographic instrument — each for the domain only they can certify — the liability closes the way your grandfather closed a life: completely, irreversibly, with a seal the state accepts. And nothing proprietary left your systems.')}
 
         <div class="end-of-watch">
           <div class="ccb-glyph">🌟</div>
           <div class="end-of-watch-text">
             <div class="end-of-watch-name">Golden Steward</div>
-            <div class="end-of-watch-line">"All obligations discharged successfully. Custody remains unbroken, and the document perimeter is sealed. Watermark is on record permanently. The deal file came home securely. Excellent work, Transaction Steward. End of watch."</div>
+            <div class="end-of-watch-line">"Four attestations. One seal. Finance signed. SLIM signed. Counsel signed. The ledger bound it. The deal file came home clean and the liability is closed. You cannot dispute a vital record. End of watch."</div>
           </div>
         </div>
 
