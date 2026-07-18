@@ -52,7 +52,7 @@
 
   .progress-track{
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(7, 1fr);
     gap: 0.4rem;
     margin-bottom: 0.85rem;
   }
@@ -76,7 +76,7 @@
 
   .progress-labels{
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(7, 1fr);
     font-family: var(--font-mono);
     font-size: 0.62rem;
     letter-spacing: 0.06em;
@@ -1090,6 +1090,104 @@
     line-height: 1.5;
   }
 
+  /* ─── AMENDMENT ADDENDUM ─────────────────────────────────────── */
+  .amend-card{
+    background: rgba(245,158,11,0.04);
+    border: 1px solid rgba(245,158,11,0.28);
+    border-radius: 12px;
+    padding: 1.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .amend-label{
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--seal-gold);
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(245,158,11,0.15);
+  }
+
+  .amend-chain{
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--muted);
+    background: rgba(0,0,0,0.3);
+    border-radius: 7px;
+    padding: 0.85rem 1rem;
+    margin-top: 1.1rem;
+    line-height: 1.85;
+  }
+
+  .amend-chain .chain-ref{ color: var(--cyan); }
+  .amend-chain .chain-seal{ color: var(--seal-gold); }
+
+  .holder-grid{
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    margin-top: 0.85rem;
+  }
+
+  .holder-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.65rem 0.9rem;
+    background: rgba(255,255,255,0.025);
+    border-radius: 7px;
+    border: 1px solid rgba(255,255,255,0.06);
+    gap: 0.75rem;
+  }
+
+  .holder-name{
+    font-size: 0.88rem;
+    color: var(--body-text);
+    font-weight: 500;
+  }
+
+  .holder-role{
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-top: 0.15rem;
+  }
+
+  .dec-dual{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(255,255,255,0.07);
+    border-radius: 9px;
+    overflow: hidden;
+    margin-top: 1.25rem;
+  }
+
+  .dec-dual-cell{
+    background: rgba(255,255,255,0.025);
+    padding: 1rem 1.25rem;
+  }
+
+  .dec-dual-label{
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.35rem;
+  }
+
+  .dec-dual-value{
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+
+  .dec-dual-value.green{ color: #4ADE80; }
+  .dec-dual-value.amber{ color: var(--seal-gold); }
+
   /* ─── FOOTER ─────────────────────────────────────────────────── */
   .footer-tag{
     text-align: center;
@@ -1125,7 +1223,7 @@
 
 <div class="stage" id="stage"></div>
 
-<div class="footer-tag">Stewardship Lifecycle Infrastructure Management // Investment Banking — MNPI // Six Moments // No live data connected</div>
+<div class="footer-tag">Stewardship Lifecycle Infrastructure Management // Investment Banking — MNPI // Seven Moments // No live data connected</div>
 
 <script>
 (function(){
@@ -1136,7 +1234,8 @@
     { key: 'memory',     label: 'Institutional Memory' },
     { key: 'harbor',     label: 'Safe Harbor'          },
     { key: 'library',    label: 'Library Card'         },
-    { key: 'management', label: 'Management Boundary'  }
+    { key: 'management', label: 'Management Boundary'  },
+    { key: 'amendment',  label: 'Post-Closing'         }
   ];
 
   let current = 0;
@@ -1527,6 +1626,111 @@
     `;
   }
 
+  // ─── ACT VII ─────────────────────────────────────────────────────
+  function sceneAmendment(){
+    const amendTs   = '2026-07-28 16:42:11 UTC';
+    const sealOrig  = 'sha256:f7a8b9c2\u2026f9a0b1c2';
+    const sealAmend = 'sha256:a3b7d9e2\u2026c4f1a8b3';
+
+    return `
+      <div class="act">
+        <div class="act-eyebrow">Act VII — Post-Closing Disclosure</div>
+        <h1 class="act-title">New exposure surfaces fourteen days after closing.</h1>
+        <p class="act-sub">Matthew Benedict discovers litigation exposure that was unknown at signing. He doesn't need permission to disclose — but the disclosure must be sealed, chained to the original DEC by hash, and every co-signatory must be given the opportunity to contest it.</p>
+
+        <div class="amend-card">
+          <div class="amend-label">Amendment Addendum — AAD-2026-IB-0391-01</div>
+          <div class="field-grid">
+            <div class="field">
+              <div class="field-label">Filed By</div>
+              <div class="field-value">Matthew Benedict, Partner</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Firm</div>
+              <div class="field-value">Kessler Topaz Meltzer &amp; Check</div>
+            </div>
+            <div class="divider-line"></div>
+            <div class="field">
+              <div class="field-label">Disclosure Type</div>
+              <div class="field-value risk">Litigation Exposure — Securities Class Action</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Discovery Date</div>
+              <div class="field-value" style="color:var(--seal-gold)">Jul 28, 2026</div>
+            </div>
+            <div class="field">
+              <div class="field-label">Filed</div>
+              <div class="field-value" style="font-family:var(--font-mono);font-size:0.8rem;">${amendTs}</div>
+            </div>
+            <div class="field">
+              <div class="field-label">SLIM Countersign</div>
+              <div class="field-value accent">Immediate — Addendum Sealed</div>
+            </div>
+          </div>
+
+          <div class="amend-chain">
+            <div>Original DEC &middot; UDT-DEAL-2026-IB-0391 &middot; <span class="chain-seal">${sealOrig}</span> &middot; <span style="color:#4ADE80">INVIOLATE</span></div>
+            <div style="padding-left:1.1rem;color:rgba(255,255,255,0.22);margin-top:0.1rem;">└─ Amendment Addendum &middot; AAD-0391-01 &middot; <span class="chain-ref">ref: sha256:f7a8b9c2&hellip;</span> &middot; <span class="chain-seal">${sealAmend}</span></div>
+          </div>
+        </div>
+
+        <div class="data-card">
+          <div class="card-header">
+            <div class="card-name">Response Window<span class="sub">5 Business Days — Notification Issued Jul 28</span></div>
+            <div class="status-pill green">● Closed — Uncontested</div>
+          </div>
+
+          <div class="holder-grid">
+            <div class="holder-row">
+              <div>
+                <div class="holder-name">Matthew Benedict — Attestation III &middot; Legal</div>
+                <div class="holder-role">Filed Addendum &middot; Jul 28, 2026 — 16:42 UTC</div>
+              </div>
+              <div class="status-pill amber">Filed</div>
+            </div>
+            <div class="holder-row">
+              <div>
+                <div class="holder-name">James Wilson — Attestation I &middot; Finance</div>
+                <div class="holder-role">Window Opened Jul 28 &middot; Closed Aug 4 &middot; No Contest Filed</div>
+              </div>
+              <div class="status-pill green">Constructive Notice</div>
+            </div>
+            <div class="holder-row">
+              <div>
+                <div class="holder-name">Counterparty Counsel — Attestation Party</div>
+                <div class="holder-role">Window Opened Jul 28 &middot; Closed Aug 4 &middot; No Contest Filed</div>
+              </div>
+              <div class="status-pill green">Constructive Notice</div>
+            </div>
+            <div class="holder-row">
+              <div>
+                <div class="holder-name">SLIM — Attestation IV &middot; Binding Authority</div>
+                <div class="holder-role">Addendum Countersigned &middot; Sealed into Ledger</div>
+              </div>
+              <div class="status-pill violet">Sealed</div>
+            </div>
+          </div>
+
+          <div class="dec-dual">
+            <div class="dec-dual-cell">
+              <div class="dec-dual-label">Deal Status</div>
+              <div class="dec-dual-value green">✓ Discharged</div>
+            </div>
+            <div class="dec-dual-cell">
+              <div class="dec-dual-label">Amendment Status</div>
+              <div class="dec-dual-value green">✓ Uncontested — Clean</div>
+            </div>
+          </div>
+        </div>
+
+        ${voiceHTML('purple','Purple Coach','Matthew\'s filing authority was unilateral — he carries a disclosure obligation, not a permission request. SLIM countersigned the moment he filed. The original seal is inviolate: what Matthew attested at closing was accurate when he signed. What changed is what he knew. That change is in the ledger now — timestamped, sealed, chained to the original DEC by hash. No new certificate. One record, one addendum, one outcome. Legal remedy belongs to the parties. SLIM closes the information gap.')}
+        ${voiceHTML('ccb','Golden Steward','Amendment filed. Countersigned. Five business days. No contest received. Constructive notice acknowledged across all holders. The liability window on this disclosure is closed. The ledger is clean.')}
+
+        ${controlsHTML(true)}
+      </div>
+    `;
+  }
+
   // ─── FINAL SCENE ─────────────────────────────────────────────────
   function sceneFinal(){
     const ts    = '2026-07-14 22:33:15 UTC';
@@ -1845,7 +2049,7 @@
           </div>
         </div>
 
-        ${voiceHTML('purple','Purple Coach','Four parties signed this instrument. The finance lead certified the numbers. SLIM certified every document that moved, every door that opened, and every door that closed. Legal counsel certified the universe of known exposure. The ledger bound all three under a seal that cannot be altered after the fact. You don\'t dispute a vital record. When four authorities co-sign the same cryptographic instrument — each for the domain only they can certify — the liability closes the way my grandfather closed a life: completely, irreversibly, with a seal the state accepts. And nothing proprietary leaves the system.')}
+        ${voiceHTML('purple','Purple Coach','Four parties signed this instrument. The finance lead certified the numbers. SLIM certified every document that moved, every door that opened, and every door that closed. Legal counsel certified the universe of known exposure. The ledger bound all three under a seal that cannot be altered after the fact. You don\'t dispute a vital record. When four authorities co-sign the same cryptographic instrument — each for the domain only they can certify — the liability closes the way your grandfather closed a life: completely, irreversibly, with a seal the state accepts. And nothing proprietary left your systems.')}
 
         <div class="end-of-watch">
           <div class="ccb-glyph">🌟</div>
@@ -1869,7 +2073,8 @@
     sceneMemory,
     sceneHarbor,
     sceneLibraryCard,
-    sceneManagement
+    sceneManagement,
+    sceneAmendment
   ];
 
   function render(){
