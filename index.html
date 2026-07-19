@@ -1188,6 +1188,38 @@
   .dec-dual-value.green{ color: #4ADE80; }
   .dec-dual-value.amber{ color: var(--seal-gold); }
 
+  /* ─── ATTESTATION DEFINITIONS ────────────────────────────────── */
+  .att-defs{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+    margin-top: 1.75rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .att-def{
+    padding: 0.9rem 1rem;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+  }
+
+  .att-def-label{
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--seal-gold);
+    margin-bottom: 0.4rem;
+  }
+
+  .att-def-desc{
+    font-size: 0.84rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
   /* ─── FOOTER ─────────────────────────────────────────────────── */
   .footer-tag{
     text-align: center;
@@ -1739,7 +1771,7 @@
     return `
       <div class="act">
         <div class="act-eyebrow">Deal Evidence Certificate — Four Attestations</div>
-        <h1 class="act-title" style="font-size:1.55rem; margin-bottom:0.4rem;">The first verifiable vital record for financial transactions.</h1>
+        <h1 class="act-title" style="font-size:1.55rem; margin-bottom:0.4rem;">The M&A equivalent of a vital record.</h1>
         <p class="act-sub" style="margin-bottom:1.5rem;">Four parties. One cryptographic seal. Zero disputes. Each authority certifies only the domain they own. The ledger binds all four into an instrument the SEC examiner cannot argue with — and your proprietary deal reasoning never leaves your systems.</p>
 
         <div class="cert-wrap">
@@ -2055,7 +2087,26 @@
           <div class="ccb-glyph">🌟</div>
           <div class="end-of-watch-text">
             <div class="end-of-watch-name">Golden Steward</div>
-            <div class="end-of-watch-line">"Four attestations. One seal. Finance signed. SLIM signed. Counsel signed. The ledger bound it. The deal file came home clean and the liability is closed. You cannot dispute a vital record. End of watch."</div>
+            <div class="end-of-watch-line">"Four attestations. One seal. Finance signed. SLIM signed. Counsel signed. The ledger bound it. The deal file came home clean, and the liability is closed. You cannot dispute a vital record. End of watch."</div>
+          </div>
+        </div>
+
+        <div class="att-defs">
+          <div class="att-def">
+            <div class="att-def-label">Legal Attestation</div>
+            <div class="att-def-desc">Legal obligations and disclosures.</div>
+          </div>
+          <div class="att-def">
+            <div class="att-def-label">Financial Attestation</div>
+            <div class="att-def-desc">Financial completeness and stewardship.</div>
+          </div>
+          <div class="att-def">
+            <div class="att-def-label">Counterparty Attestation</div>
+            <div class="att-def-desc">Receipt, acknowledgment, or contest.</div>
+          </div>
+          <div class="att-def">
+            <div class="att-def-label">Integrity Attestation (SLIM)</div>
+            <div class="att-def-desc">Cryptographic binding, timestamping, and lifecycle continuity.</div>
           </div>
         </div>
 
