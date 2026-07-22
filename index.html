@@ -3,2149 +3,2113 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SLIM API — Infrastructure for Verifiable Evidence.</title>
+<title>SLIM API — Evidence as Infrastructure.</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link
+href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@
+0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrai
+ns+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  html{height:100%;}
-
-  :root{
-    --void:        #07070F;
-    --night:       #0D0B1E;
-    --deep-purple: #1A0A3A;
-    --violet:      #7C3AED;
-    --violet-dim:  #4C1D95;
-    --cyan:        #06B6D4;
-    --cyan-dim:    #164E63;
-    --starlight:   #EDE9FE;
-    --body-text:   #C4B5FD;
-    --muted:       #7C6FA0;
-    --ccb-pink:    #F9A8D4;
-    --ccb-dim:     #831843;
-    --seal-gold:   #F59E0B;
-    --risk-red:    #F87171;
-    --font-display:'Playfair Display', Georgia, serif;
-    --font-body:   'Inter', system-ui, sans-serif;
-    --font-mono:   'JetBrains Mono', 'Courier New', monospace;
-  }
-
-  body{
-    background: var(--void);
-    color: var(--starlight);
-    font-family: var(--font-body);
-    min-height: 100vh;
-    -webkit-font-smoothing: antialiased;
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
-  }
-
-  /* ─── PROGRESS BAR ─────────────────────────────────────────── */
-  .progress-wrap{
-    padding: 1.75rem 2rem 1.25rem;
-    max-width: 900px;
-    margin: 0 auto;
-    width: 100%;
-  }
-
-  .progress-track{
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 0.4rem;
-    margin-bottom: 0.85rem;
-  }
-
-  .progress-seg{
-    height: 3px;
-    border-radius: 2px;
-    background: rgba(255,255,255,0.09);
-    overflow: hidden;
-    position: relative;
-  }
-
-  .progress-seg .fill{
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(90deg, var(--violet), var(--cyan));
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.6s cubic-bezier(.4,0,.2,1);
-  }
-
-  .progress-labels{
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--muted);
-  }
-
-  .progress-labels span{ transition: color 0.4s ease; }
-  .progress-labels span.current{ color: var(--cyan); }
-  .progress-labels span.done{ color: var(--body-text); }
-
-  /* ─── STAGE ──────────────────────────────────────────────────── */
-  .stage{
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem 2rem 3rem;
-  }
-
-  .act{
-    max-width: 640px;
-    width: 100%;
-    opacity: 0;
-    transform: translateY(14px);
-    animation: actIn 0.55s cubic-bezier(.16,1,.3,1) forwards;
-  }
-
-  @keyframes actIn{
-    to{ opacity: 1; transform: translateY(0); }
-  }
-
-  .act-eyebrow{
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--cyan);
-    margin-bottom: 0.6rem;
-  }
-
-  .act-title{
-    font-family: var(--font-display);
-    font-size: clamp(1.7rem, 4.2vw, 2.5rem);
-    font-weight: 700;
-    line-height: 1.15;
-    color: #fff;
-    margin-bottom: 0.5rem;
-  }
-
-  .act-sub{
-    font-size: 1rem;
-    font-weight: 300;
-    color: var(--muted);
-    margin-bottom: 2rem;
-    line-height: 1.5;
-  }
-
-  /* ─── DATA CARD ──────────────────────────────────────────────── */
-  .data-card{
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(255,255,255,0.09);
-    border-radius: 12px;
-    padding: 1.75rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .data-card.alert{
-    background: rgba(248,113,113,0.06);
-    border-color: rgba(248,113,113,0.25);
-  }
-
-  .data-card.memory{
-    background: rgba(124,58,237,0.06);
-    border-color: rgba(124,58,237,0.22);
-  }
-
-  .data-card.harbor{
-    background: rgba(6,182,212,0.06);
-    border-color: rgba(6,182,212,0.22);
-  }
-
-  .data-card.summary{
-    background: rgba(245,158,11,0.05);
-    border-color: rgba(245,158,11,0.2);
-  }
-
-  .card-header{
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.25rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid rgba(255,255,255,0.06);
-  }
-
-  .card-name{
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: var(--starlight);
-  }
-
-  .card-name .sub{
-    display: block;
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    color: var(--muted);
-    font-weight: 400;
-    margin-top: 0.25rem;
-  }
-
-  .status-pill{
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.32rem 0.75rem;
-    border-radius: 20px;
-    white-space: nowrap;
-  }
-
-  .status-pill.green{ background: rgba(74,222,128,0.12); color: #4ADE80; border: 1px solid rgba(74,222,128,0.3); }
-  .status-pill.red{ background: rgba(248,113,113,0.12); color: var(--risk-red); border: 1px solid rgba(248,113,113,0.3); }
-  .status-pill.amber{ background: rgba(245,158,11,0.12); color: var(--seal-gold); border: 1px solid rgba(245,158,11,0.3); }
-  .status-pill.violet{ background: rgba(124,58,237,0.15); color: #C4B5FD; border: 1px solid rgba(124,58,237,0.35); }
-  .status-pill.cyan{ background: rgba(6,182,212,0.12); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
-
-  .field-grid{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.1rem 1.5rem;
-  }
-
-  .field{ min-width: 0; }
-
-  .field-label{
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 0.3rem;
-  }
-
-  .field-value{
-    font-size: 0.98rem;
-    color: var(--starlight);
-    font-weight: 500;
-    line-height: 1.4;
-  }
-
-  .field-value.big{
-    font-family: var(--font-display);
-    font-size: 1.6rem;
-    font-weight: 700;
-  }
-
-  .field-value.risk{ color: var(--risk-red); }
-  .field-value.accent{ color: var(--cyan); }
-
-  .divider-line{
-    grid-column: 1 / -1;
-    height: 1px;
-    background: rgba(255,255,255,0.06);
-    margin: 0.15rem 0;
-  }
-
-  .exec-list{ list-style: none; }
-  .exec-list li{
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    padding: 0.55rem 0;
-    font-size: 0.95rem;
-    color: var(--body-text);
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-  .exec-list li:last-child{ border-bottom: none; }
-  .exec-list li::before{
-    content: '✓';
-    color: var(--seal-gold);
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    flex-shrink: 0;
-  }
-
-  .powered-by{
-    margin-top: 1rem;
-    padding-top: 0.85rem;
-    border-top: 1px solid rgba(255,255,255,0.06);
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.05em;
-    color: var(--muted);
-  }
-
-  /* ─── DUAL AGENT VOICES ──────────────────────────────────────── */
-  .voice{
-    display: flex;
-    gap: 0.85rem;
-    align-items: flex-start;
-    padding: 1rem 1.15rem;
-    border-radius: 10px;
-    margin-bottom: 0.85rem;
-  }
-
-  .voice.purple{
-    background: rgba(124,58,237,0.07);
-    border-left: 3px solid var(--violet);
-  }
-
-  .voice.ccb{
-    background: rgba(6,182,212,0.06);
-    border-left: 3px solid var(--cyan);
-  }
-
-  .voice-icon{
-    font-size: 1.3rem;
-    line-height: 1;
-    flex-shrink: 0;
-    margin-top: 0.1rem;
-  }
-
-  .voice-body{ flex: 1; min-width: 0; }
-
-  .voice-name{
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    margin-bottom: 0.3rem;
-  }
-
-  .voice.purple .voice-name{ color: #C4B5FD; }
-  .voice.ccb .voice-name{ color: var(--cyan); }
-
-  .voice-line{
-    font-style: italic;
-    font-size: 0.92rem;
-    line-height: 1.55;
-    color: var(--starlight);
-  }
-
-  /* ─── CONTROLS ───────────────────────────────────────────────── */
-  .controls{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 2rem;
-    gap: 1rem;
-  }
-
-  .btn-back{
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    letter-spacing: 0.06em;
-    color: var(--muted);
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.6rem 0.25rem;
-    transition: color 0.2s ease;
-  }
-  .btn-back:hover{ color: var(--body-text); }
-  .btn-back:disabled{ visibility: hidden; }
-
-  .btn-continue{
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--void);
-    background: linear-gradient(135deg, var(--starlight), #fff);
-    border: none;
-    padding: 0.85rem 2.1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    letter-spacing: 0.01em;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    box-shadow: 0 4px 20px rgba(124,58,237,0.15);
-  }
-
-  .btn-continue:hover{
-    transform: translateY(-1px);
-    box-shadow: 0 6px 28px rgba(124,58,237,0.28);
-  }
-
-  .btn-continue:active{ transform: translateY(0); }
-
-  .btn-restart{
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 0.95rem;
-    color: var(--starlight);
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.15);
-    padding: 0.85rem 2.1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background 0.15s ease;
-  }
-  .btn-restart:hover{ background: rgba(255,255,255,0.1); }
-
-  /* ─── CERTIFICATE OF DISCHARGE ──────────────────────────────── */
-  .cert-wrap{ margin-bottom: 1.75rem; }
-
-  .cert{
-    background: linear-gradient(160deg, #0F0B22 0%, #0D0B1E 100%);
-    border: 1px solid rgba(245,158,11,0.35);
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow:
-      0 0 0 1px rgba(245,158,11,0.08) inset,
-      0 24px 60px rgba(0,0,0,0.55);
-    position: relative;
-  }
-
-  .cert::before, .cert::after{
-    content: '';
-    position: absolute;
-    width: 32px;
-    height: 32px;
-    border-color: rgba(245,158,11,0.28);
-    border-style: solid;
-  }
-  .cert::before{ top: 12px; left: 12px; border-width: 1px 0 0 1px; border-radius: 3px 0 0 0; }
-  .cert::after{  top: 12px; right: 12px; border-width: 1px 1px 0 0; border-radius: 0 3px 0 0; }
-
-  .cert-bottom-corners{ position: absolute; inset: 0; pointer-events: none; }
-  .cert-bottom-corners::before,
-  .cert-bottom-corners::after{
-    content: '';
-    position: absolute;
-    width: 32px;
-    height: 32px;
-    border-color: rgba(245,158,11,0.28);
-    border-style: solid;
-  }
-  .cert-bottom-corners::before{ bottom: 12px; left: 12px; border-width: 0 0 1px 1px; border-radius: 0 0 0 3px; }
-  .cert-bottom-corners::after{  bottom: 12px; right: 12px; border-width: 0 1px 1px 0; border-radius: 0 0 3px 0; }
-
-  .cert-header{
-    background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(124,58,237,0.08));
-    border-bottom: 1px solid rgba(245,158,11,0.18);
-    padding: 1.5rem 1.75rem 1.25rem;
-    text-align: center;
-    position: relative;
-  }
-
-  .cert-issuer{
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--seal-gold);
-    margin-bottom: 0.5rem;
-    opacity: 0.85;
-  }
-
-  .cert-title{
-    font-family: var(--font-display);
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: #fff;
-    letter-spacing: 0.02em;
-    margin-bottom: 0.3rem;
-  }
-
-  .cert-subtitle{
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
-    color: var(--muted);
-    text-transform: uppercase;
-  }
-
-  .cert-seal{
-    position: absolute;
-    right: 1.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(245,158,11,0.45);
-    background: rgba(245,158,11,0.08);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.4rem;
-  }
-
-  .cert-body{ padding: 1.5rem 1.75rem; }
-
-  .cert-section{ margin-bottom: 1.25rem; }
-  .cert-section:last-child{ margin-bottom: 0; }
-
-  .cert-section-label{
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--seal-gold);
-    opacity: 0.7;
-    margin-bottom: 0.5rem;
-  }
-
-  .cert-field-row{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem 1.25rem;
-  }
-
-  .cert-field{ min-width: 0; }
-
-  .cert-field-label{
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 0.2rem;
-  }
-
-  .cert-field-value{
-    font-size: 0.9rem;
-    color: var(--starlight);
-    font-weight: 500;
-    word-break: break-all;
-    line-height: 1.4;
-  }
-
-  .cert-field-value.mono{
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
-    color: var(--body-text);
-    letter-spacing: 0.02em;
-  }
-
-  .cert-field-value.gold{ color: var(--seal-gold); }
-  .cert-field-value.green{ color: #4ADE80; }
-  .cert-field-value.cyan{ color: var(--cyan); }
-  .cert-field-value.violet{ color: #C4B5FD; }
-
-  .cert-divider{
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(245,158,11,0.18), transparent);
-    margin: 1.1rem 0;
-  }
-
-  .cert-chain{
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-  }
-
-  .cert-chain-node{
-    background: rgba(124,58,237,0.1);
-    border: 1px solid rgba(124,58,237,0.25);
-    border-radius: 6px;
-    padding: 0.45rem 0.85rem;
-  }
-
-  .cert-chain-node .node-name{
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--starlight);
-  }
-
-  .cert-chain-node .node-role{
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-top: 0.1rem;
-  }
-
-  .cert-chain-arrow{
-    color: var(--violet);
-    font-size: 1rem;
-    opacity: 0.7;
-    flex-shrink: 0;
-  }
-
-  .cert-hash{
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    color: var(--body-text);
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 6px;
-    padding: 0.65rem 0.85rem;
-    word-break: break-all;
-    letter-spacing: 0.02em;
-    line-height: 1.55;
-  }
-
-  .cert-footer{
-    background: rgba(0,0,0,0.25);
-    border-top: 1px solid rgba(245,158,11,0.12);
-    padding: 1rem 1.75rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
-  }
-
-  .cert-footer-status{
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: #4ADE80;
-  }
-
-  .cert-footer-status .dot{
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #4ADE80;
-    box-shadow: 0 0 6px #4ADE80;
-  }
-
-  .cert-verify-link{
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--cyan);
-    letter-spacing: 0.06em;
-    text-decoration: none;
-    opacity: 0.8;
-    transition: opacity 0.2s;
-  }
-  .cert-verify-link:hover{ opacity: 1; }
-
-  /* ─── FOUR-PARTY ATTESTATION BLOCKS ──────────────────────────── */
-  .attestation-upper{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .att-block{
-    border-radius: 10px;
-    padding: 1rem 1.1rem 1rem;
-    position: relative;
-  }
-
-  .att-block.finance{
-    background: rgba(245,158,11,0.05);
-    border: 1px solid rgba(245,158,11,0.28);
-  }
-
-  .att-block.slim{
-    background: rgba(124,58,237,0.06);
-    border: 1px solid rgba(124,58,237,0.28);
-  }
-
-  .att-block.legal{
-    background: rgba(6,182,212,0.05);
-    border: 1px solid rgba(6,182,212,0.28);
-  }
-
-  /* Ledger spans full width — binding element */
-  .att-block.ledger{
-    background: rgba(74,222,128,0.04);
-    border: 1px solid rgba(74,222,128,0.26);
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 0.85rem 1.5rem;
-    align-items: center;
-    padding: 1rem 1.25rem;
-  }
-
-  .att-ledger-left{}
-  .att-ledger-right{
-    text-align: right;
-    flex-shrink: 0;
-  }
-
-  .att-number{
-    font-family: var(--font-mono);
-    font-size: 0.57rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    margin-bottom: 0.3rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .att-block.finance .att-number{ color: var(--seal-gold); }
-  .att-block.slim .att-number{ color: #C4B5FD; }
-  .att-block.legal .att-number{ color: var(--cyan); }
-  .att-block.ledger .att-number{ color: #4ADE80; }
-
-  .att-role{
-    font-family: var(--font-display);
-    font-size: 0.92rem;
-    font-weight: 700;
-    color: var(--starlight);
-    margin-bottom: 0.35rem;
-    line-height: 1.2;
-  }
-
-  .att-certifies{
-    font-size: 0.78rem;
-    color: var(--muted);
-    line-height: 1.5;
-    margin-bottom: 0.75rem;
-  }
-
-  .att-block.ledger .att-certifies{
-    margin-bottom: 0;
-    font-size: 0.8rem;
-  }
-
-  .att-sig{
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
-    color: var(--body-text);
-    background: rgba(0,0,0,0.28);
-    border-radius: 4px;
-    padding: 0.4rem 0.6rem;
-    word-break: break-all;
-    letter-spacing: 0.02em;
-    line-height: 1.55;
-  }
-
-  .att-sig-label{
-    display: block;
-    font-size: 0.52rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    margin-bottom: 0.2rem;
-  }
-
-  .att-block.finance .att-sig-label{ color: var(--seal-gold); opacity: 0.7; }
-  .att-block.slim .att-sig-label{ color: #C4B5FD; opacity: 0.7; }
-  .att-block.legal .att-sig-label{ color: var(--cyan); opacity: 0.7; }
-  .att-block.ledger .att-sig-label{ color: #4ADE80; opacity: 0.7; }
-
-  .att-pill{
-    font-family: var(--font-mono);
-    font-size: 0.58rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.22rem 0.6rem;
-    border-radius: 20px;
-    white-space: nowrap;
-    margin-bottom: 0.5rem;
-    display: inline-block;
-  }
-
-  .att-pill.amber{ background: rgba(245,158,11,0.12); color: var(--seal-gold); border: 1px solid rgba(245,158,11,0.3); }
-  .att-pill.violet{ background: rgba(124,58,237,0.15); color: #C4B5FD; border: 1px solid rgba(124,58,237,0.35); }
-  .att-pill.cyan{ background: rgba(6,182,212,0.12); color: var(--cyan); border: 1px solid rgba(6,182,212,0.3); }
-  .att-pill.green{ background: rgba(74,222,128,0.1); color: #4ADE80; border: 1px solid rgba(74,222,128,0.28); }
-
-  .ledger-bind-label{
-    font-family: var(--font-mono);
-    font-size: 0.55rem;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: rgba(74,222,128,0.5);
-    text-align: center;
-    padding: 0.35rem 0;
-    position: relative;
-  }
-
-  .ledger-bind-label::before,
-  .ledger-bind-label::after{
-    content: '';
-    position: absolute;
-    top: 50%;
-    width: 30%;
-    height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(74,222,128,0.2));
-  }
-  .ledger-bind-label::before{ left: 0; }
-  .ledger-bind-label::after{ right: 0; transform: scaleX(-1); }
-
-  /* ─── END OF WATCH ───────────────────────────────────────────── */
-  .end-of-watch{
-    text-align: center;
-    padding: 1.35rem 1.75rem;
-    background: rgba(6,182,212,0.05);
-    border: 1px solid rgba(6,182,212,0.18);
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    justify-content: center;
-  }
-
-  .end-of-watch .ccb-glyph{
-    font-size: 1.75rem;
-    flex-shrink: 0;
-  }
-
-  .end-of-watch-text{ text-align: left; }
-
-  .end-of-watch-name{
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--cyan);
-    margin-bottom: 0.25rem;
-  }
-
-  .end-of-watch-line{
-    font-style: italic;
-    font-size: 0.92rem;
-    color: var(--starlight);
-    line-height: 1.5;
-  }
-
-  /* ─── LIBRARY CARD ───────────────────────────────────────────── */
-  .lib-card{
-    background: linear-gradient(135deg, #0A0F1E 0%, #0D1424 100%);
-    border: 1px solid rgba(245,158,11,0.25);
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .lib-card::before{
-    content: '📋';
-    position: absolute;
-    right: 1.25rem;
-    top: 1.1rem;
-    font-size: 1.6rem;
-    opacity: 0.18;
-  }
-
-  .lib-card-header{
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-    padding-bottom: 0.85rem;
-    border-bottom: 1px solid rgba(245,158,11,0.12);
-  }
-
-  .lib-card-title{
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--starlight);
-  }
-
-  .lib-card-title .sub{
-    display: block;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--muted);
-    font-weight: 400;
-    margin-top: 0.2rem;
-    letter-spacing: 0.06em;
-  }
-
-  .lib-timeline{
-    display: flex;
-    align-items: stretch;
-    gap: 0;
-    margin: 0.5rem 0 0.25rem;
-  }
-
-  .lib-event{
-    flex: 1;
-    padding: 0.85rem 0.85rem 0.85rem 0;
-    position: relative;
-  }
-
-  .lib-event:not(:last-child)::after{
-    content: '→';
-    position: absolute;
-    right: -0.1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--seal-gold);
-    opacity: 0.5;
-    font-size: 0.9rem;
-  }
-
-  .lib-event-label{
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 0.3rem;
-  }
-
-  .lib-event-value{
-    font-size: 0.88rem;
-    color: var(--starlight);
-    font-weight: 500;
-    line-height: 1.35;
-  }
-
-  .lib-event-value.gold{ color: var(--seal-gold); }
-  .lib-event-value.green{ color: #4ADE80; }
-
-  .lib-sig{
-    margin-top: 0.85rem;
-    padding: 0.6rem 0.85rem;
-    background: rgba(0,0,0,0.25);
-    border-radius: 6px;
-    border: 1px solid rgba(255,255,255,0.05);
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--body-text);
-    letter-spacing: 0.03em;
-    word-break: break-all;
-  }
-
-  .lib-sig .sig-label{
-    color: var(--seal-gold);
-    opacity: 0.7;
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    display: block;
-    margin-bottom: 0.25rem;
-  }
-
-  /* ─── FORENSIC WATERMARK CARD ────────────────────────────────── */
-  .wmk-card{
-    background: linear-gradient(135deg, #080616 0%, #0E0B1E 100%);
-    border: 1px solid rgba(124,58,237,0.32);
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .wmk-card::before{
-    content: '🔏';
-    position: absolute;
-    right: 1.25rem;
-    top: 1.1rem;
-    font-size: 1.6rem;
-    opacity: 0.13;
-  }
-
-  .wmk-header{
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-    padding-bottom: 0.85rem;
-    border-bottom: 1px solid rgba(124,58,237,0.16);
-  }
-
-  .wmk-title{
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--starlight);
-  }
-
-  .wmk-title .sub{
-    display: block;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--muted);
-    font-weight: 400;
-    margin-top: 0.2rem;
-    letter-spacing: 0.06em;
-  }
-
-  .wmk-token-block{
-    margin: 0.85rem 0;
-    padding: 0.65rem 0.85rem;
-    background: rgba(0,0,0,0.32);
-    border: 1px solid rgba(124,58,237,0.18);
-    border-radius: 6px;
-  }
-
-  .wmk-token-label{
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: #C4B5FD;
-    opacity: 0.75;
-    display: block;
-    margin-bottom: 0.3rem;
-  }
-
-  .wmk-token-value{
-    font-family: var(--font-mono);
-    font-size: 0.66rem;
-    color: var(--body-text);
-    word-break: break-all;
-    letter-spacing: 0.02em;
-    line-height: 1.6;
-  }
-
-  .wmk-tagline{
-    padding: 0.65rem 0.9rem;
-    background: rgba(124,58,237,0.05);
-    border-left: 2px solid rgba(124,58,237,0.42);
-    border-radius: 0 6px 6px 0;
-    font-style: italic;
-    font-size: 0.83rem;
-    color: var(--body-text);
-    line-height: 1.55;
-  }
-
-  /* ─── DOCUMENT ACCESS TOKEN CARD ─────────────────────────────── */
-  .dat-card{
-    background: linear-gradient(135deg, #060D14 0%, #071218 100%);
-    border: 1px solid rgba(6,182,212,0.3);
-    border-radius: 10px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .dat-card::before{
-    content: '🔐';
-    position: absolute;
-    right: 1.25rem;
-    top: 1.1rem;
-    font-size: 1.6rem;
-    opacity: 0.12;
-  }
-
-  .dat-header{
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-    padding-bottom: 0.85rem;
-    border-bottom: 1px solid rgba(6,182,212,0.14);
-  }
-
-  .dat-title{
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--starlight);
-  }
-
-  .dat-title .sub{
-    display: block;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    color: var(--muted);
-    font-weight: 400;
-    margin-top: 0.2rem;
-    letter-spacing: 0.06em;
-  }
-
-  .dat-verify-block{
-    margin: 0.85rem 0;
-    padding: 0.65rem 0.85rem;
-    background: rgba(0,0,0,0.3);
-    border: 1px solid rgba(6,182,212,0.15);
-    border-radius: 6px;
-  }
-
-  .dat-verify-label{
-    font-family: var(--font-mono);
-    font-size: 0.6rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--cyan);
-    opacity: 0.75;
-    display: block;
-    margin-bottom: 0.3rem;
-  }
-
-  .dat-verify-url{
-    font-family: var(--font-mono);
-    font-size: 0.66rem;
-    color: var(--body-text);
-    word-break: break-all;
-    letter-spacing: 0.02em;
-    line-height: 1.6;
-  }
-
-  .dat-verify-url .response{
-    color: #4ADE80;
-    margin-top: 0.25rem;
-    display: block;
-  }
-
-  .dat-tagline{
-    padding: 0.65rem 0.9rem;
-    background: rgba(6,182,212,0.04);
-    border-left: 2px solid rgba(6,182,212,0.4);
-    border-radius: 0 6px 6px 0;
-    font-style: italic;
-    font-size: 0.83rem;
-    color: var(--body-text);
-    line-height: 1.5;
-  }
-
-  /* ─── AMENDMENT ADDENDUM ─────────────────────────────────────── */
-  .amend-card{
-    background: rgba(245,158,11,0.04);
-    border: 1px solid rgba(245,158,11,0.28);
-    border-radius: 12px;
-    padding: 1.75rem;
-    margin-bottom: 1.25rem;
-  }
-
-  .amend-label{
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--seal-gold);
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid rgba(245,158,11,0.15);
-  }
-
-  .amend-chain{
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    color: var(--muted);
-    background: rgba(0,0,0,0.3);
-    border-radius: 7px;
-    padding: 0.85rem 1rem;
-    margin-top: 1.1rem;
-    line-height: 1.85;
-  }
-
-  .amend-chain .chain-ref{ color: var(--cyan); }
-  .amend-chain .chain-seal{ color: var(--seal-gold); }
-
-  .holder-grid{
-    display: flex;
-    flex-direction: column;
-    gap: 0.55rem;
-    margin-top: 0.85rem;
-  }
-
-  .holder-row{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.65rem 0.9rem;
-    background: rgba(255,255,255,0.025);
-    border-radius: 7px;
-    border: 1px solid rgba(255,255,255,0.06);
-    gap: 0.75rem;
-  }
-
-  .holder-name{
-    font-size: 0.88rem;
-    color: var(--body-text);
-    font-weight: 500;
-  }
-
-  .holder-role{
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.06em;
-    color: var(--muted);
-    margin-top: 0.15rem;
-  }
-
-  .dec-dual{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1px;
-    background: rgba(255,255,255,0.07);
-    border-radius: 9px;
-    overflow: hidden;
-    margin-top: 1.25rem;
-  }
-
-  .dec-dual-cell{
-    background: rgba(255,255,255,0.025);
-    padding: 1rem 1.25rem;
-  }
-
-  .dec-dual-label{
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 0.35rem;
-  }
-
-  .dec-dual-value{
-    font-size: 0.95rem;
-    font-weight: 600;
-  }
-
-  .dec-dual-value.green{ color: #4ADE80; }
-  .dec-dual-value.amber{ color: var(--seal-gold); }
-
-  /* ─── ATTESTATION DEFINITIONS ────────────────────────────────── */
-  .att-defs{
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.7rem;
-    margin-top: 1.75rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid rgba(255,255,255,0.06);
-  }
-
-  .att-def{
-    padding: 0.9rem 1rem;
-    background: rgba(255,255,255,0.02);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 8px;
-  }
-
-  .att-def-label{
-    font-family: var(--font-mono);
-    font-size: 0.62rem;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--seal-gold);
-    margin-bottom: 0.4rem;
-  }
-
-  .att-def-desc{
-    font-size: 0.84rem;
-    color: var(--muted);
-    line-height: 1.5;
-  }
-
-  /* ─── FOOTER ─────────────────────────────────────────────────── */
-  .footer-tag{
-    text-align: center;
-    padding: 1.25rem 2rem 1.75rem;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    letter-spacing: 0.1em;
-    color: var(--muted);
-    opacity: 0.55;
-  }
-
-  @media (max-width: 560px){
-    .field-grid{ grid-template-columns: 1fr; }
-    .card-header{ flex-direction: column; gap: 0.6rem; }
-    .progress-labels span{ font-size: 0.52rem; }
-    .lib-timeline{ flex-direction: column; }
-    .lib-event::after{ display: none; }
-    .cert-field-row{ grid-template-columns: 1fr; }
-    .dat-header{ flex-direction: column; gap: 0.6rem; }
-    .wmk-header{ flex-direction: column; gap: 0.6rem; }
-    .attestation-upper{ grid-template-columns: 1fr; }
-    .att-block.ledger{ grid-template-columns: 1fr; }
-    .att-ledger-right{ text-align: left; }
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;}
+:root{
+--void:
+#07070F;
+--night:
+#0D0B1E;
+--deep-purple: #1A0A3A;
+--violet:
+#7C3AED;
+--violet-dim: #4C1D95;
+--cyan:
+#06B6D4;
+--cyan-dim: #164E63;
+--starlight: #EDE9FE;
+--body-text: #C4B5FD;
+--muted:
+#7C6FA0;
+--ccb-pink: #F9A8D4;
+--ccb-dim: #831843;
+--seal-gold: #F59E0B;
+--risk-red: #F87171;
+--font-display:'Playfair Display', Georgia, serif;
+--font-body: 'Inter', system-ui, sans-serif;
+--font-mono: 'JetBrains Mono', 'Courier New', monospace;
+}
+body{
+background: var(--void);
+color: var(--starlight);
+font-family: var(--font-body);
+min-height: 100vh;
+-webkit-font-smoothing: antialiased;
+
+
+display: flex;
+flex-direction: column;
+overflow-x: hidden;
+}
+/* ─── PROGRESS BAR
+──── */
+.progress-wrap{
+padding: 1.75rem 2rem 1.25rem;
+max-width: 900px;
+margin: 0 auto;
+width: 100%;
+}
+.progress-track{
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+gap: 0.4rem;
+margin-bottom: 0.85rem;
+}
+.progress-seg{
+height: 3px;
+border-radius: 2px;
+background: rgba(255,255,255,0.09);
+overflow: hidden;
+position: relative;
+}
+.progress-seg .fill{
+position: absolute;
+inset: 0;
+background: linear-gradient(90deg, var(--violet), var(--cyan));
+transform: scaleX(0);
+transform-origin: left;
+transition: transform 0.6s cubic-bezier(.4,0,.2,1);
+}
+.progress-labels{
+display: grid;
+grid-template-columns: repeat(7, 1fr);
+
+
+font-family: var(--font-mono);
+font-size: 0.62rem;
+letter-spacing: 0.06em;
+text-transform: uppercase;
+color: var(--muted);
+}
+.progress-labels span{ transition: color 0.4s ease; }
+.progress-labels span.current{ color: var(--cyan); }
+.progress-labels span.done{ color: var(--body-text); }
+/* ─── STAGE
+───────────── */
+.stage{
+flex: 1;
+display: flex;
+align-items: center;
+justify-content: center;
+padding: 1.5rem 2rem 3rem;
+}
+.act{
+max-width: 640px;
+width: 100%;
+opacity: 0;
+transform: translateY(14px);
+animation: actIn 0.55s cubic-bezier(.16,1,.3,1) forwards;
+}
+@keyframes actIn{
+to{ opacity: 1; transform: translateY(0); }
+}
+.act-eyebrow{
+font-family: var(--font-mono);
+font-size: 0.7rem;
+letter-spacing: 0.22em;
+text-transform: uppercase;
+color: var(--cyan);
+margin-bottom: 0.6rem;
+}
+
+
+
+.act-title{
+font-family: var(--font-display);
+font-size: clamp(1.7rem, 4.2vw, 2.5rem);
+font-weight: 700;
+line-height: 1.15;
+color: #fff;
+margin-bottom: 0.5rem;
+}
+.act-sub{
+font-size: 1rem;
+font-weight: 300;
+color: var(--muted);
+margin-bottom: 2rem;
+line-height: 1.5;
+}
+/* ─── DATA CARD
+───────── */
+.data-card{
+background: rgba(255,255,255,0.025);
+border: 1px solid rgba(255,255,255,0.09);
+border-radius: 12px;
+padding: 1.75rem;
+margin-bottom: 1.5rem;
+}
+.data-card.alert{
+background: rgba(248,113,113,0.06);
+border-color: rgba(248,113,113,0.25);
+}
+.data-card.memory{
+background: rgba(124,58,237,0.06);
+border-color: rgba(124,58,237,0.22);
+}
+.data-card.harbor{
+background: rgba(6,182,212,0.06);
+border-color: rgba(6,182,212,0.22);
+
+
+}
+.data-card.summary{
+background: rgba(245,158,11,0.05);
+border-color: rgba(245,158,11,0.2);
+}
+.card-header{
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 1.25rem;
+padding-bottom: 1rem;
+border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.card-name{
+font-family: var(--font-display);
+font-size: 1.25rem;
+font-weight: 700;
+color: var(--starlight);
+}
+.card-name .sub{
+display: block;
+font-family: var(--font-mono);
+font-size: 0.72rem;
+color: var(--muted);
+font-weight: 400;
+margin-top: 0.25rem;
+}
+.status-pill{
+font-family: var(--font-mono);
+font-size: 0.68rem;
+letter-spacing: 0.1em;
+text-transform: uppercase;
+padding: 0.32rem 0.75rem;
+border-radius: 20px;
+white-space: nowrap;
+}
+
+
+.status-pill.green{ background: rgba(74,222,128,0.12); color: #4ADE80;
+border: 1px solid rgba(74,222,128,0.3); }
+.status-pill.red{ background: rgba(248,113,113,0.12); color: var(--risk-red);
+border: 1px solid rgba(248,113,113,0.3); }
+.status-pill.amber{ background: rgba(245,158,11,0.12); color: var(--seal-gold);
+border: 1px solid rgba(245,158,11,0.3); }
+.status-pill.violet{ background: rgba(124,58,237,0.15); color: #C4B5FD;
+border: 1px solid rgba(124,58,237,0.35); }
+.status-pill.cyan{ background: rgba(6,182,212,0.12); color: var(--cyan); border:
+1px solid rgba(6,182,212,0.3); }
+.field-grid{
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1.1rem 1.5rem;
+}
+.field{ min-width: 0; }
+.field-label{
+font-family: var(--font-mono);
+font-size: 0.65rem;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: var(--muted);
+margin-bottom: 0.3rem;
+}
+.field-value{
+font-size: 0.98rem;
+color: var(--starlight);
+font-weight: 500;
+line-height: 1.4;
+}
+.field-value.big{
+font-family: var(--font-display);
+font-size: 1.6rem;
+font-weight: 700;
+}
+.field-value.risk{ color: var(--risk-red); }
+
+
+.field-value.accent{ color: var(--cyan); }
+.divider-line{
+grid-column: 1 / -1;
+height: 1px;
+background: rgba(255,255,255,0.06);
+margin: 0.15rem 0;
+}
+.exec-list{ list-style: none; }
+.exec-list li{
+display: flex;
+align-items: baseline;
+gap: 0.6rem;
+padding: 0.55rem 0;
+font-size: 0.95rem;
+color: var(--body-text);
+border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.exec-list li:last-child{ border-bottom: none; }
+.exec-list li::before{
+content: '✓';
+color: var(--seal-gold);
+font-family: var(--font-mono);
+font-size: 0.85rem;
+flex-shrink: 0;
+}
+.powered-by{
+margin-top: 1rem;
+padding-top: 0.85rem;
+border-top: 1px solid rgba(255,255,255,0.06);
+font-family: var(--font-mono);
+font-size: 0.68rem;
+letter-spacing: 0.05em;
+color: var(--muted);
+}
+/* ─── DUAL AGENT VOICES
+─ */
+.voice{
+
+
+display: flex;
+gap: 0.85rem;
+align-items: flex-start;
+padding: 1rem 1.15rem;
+border-radius: 10px;
+margin-bottom: 0.85rem;
+}
+.voice.purple{
+background: rgba(124,58,237,0.07);
+border-left: 3px solid var(--violet);
+}
+.voice.ccb{
+background: rgba(6,182,212,0.06);
+border-left: 3px solid var(--cyan);
+}
+.voice-icon{
+font-size: 1.3rem;
+line-height: 1;
+flex-shrink: 0;
+margin-top: 0.1rem;
+}
+.voice-body{ flex: 1; min-width: 0; }
+.voice-name{
+font-family: var(--font-mono);
+font-size: 0.65rem;
+letter-spacing: 0.14em;
+text-transform: uppercase;
+margin-bottom: 0.3rem;
+}
+.voice.purple .voice-name{ color: #C4B5FD; }
+.voice.ccb .voice-name{ color: var(--cyan); }
+.voice-line{
+font-style: italic;
+font-size: 0.92rem;
+line-height: 1.55;
+
+
+color: var(--starlight);
+}
+/* ─── CONTROLS
+────────── */
+.controls{
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-top: 2rem;
+gap: 1rem;
+}
+.btn-back{
+font-family: var(--font-mono);
+font-size: 0.75rem;
+letter-spacing: 0.06em;
+color: var(--muted);
+background: none;
+border: none;
+cursor: pointer;
+padding: 0.6rem 0.25rem;
+transition: color 0.2s ease;
+}
+.btn-back:hover{ color: var(--body-text); }
+.btn-back:disabled{ visibility: hidden; }
+.btn-continue{
+font-family: var(--font-body);
+font-weight: 600;
+font-size: 0.95rem;
+color: var(--void);
+background: linear-gradient(135deg, var(--starlight), #fff);
+border: none;
+padding: 0.85rem 2.1rem;
+border-radius: 8px;
+cursor: pointer;
+letter-spacing: 0.01em;
+transition: transform 0.15s ease, box-shadow 0.15s ease;
+box-shadow: 0 4px 20px rgba(124,58,237,0.15);
+}
+
+
+
+.btn-continue:hover{
+transform: translateY(-1px);
+box-shadow: 0 6px 28px rgba(124,58,237,0.28);
+}
+.btn-continue:active{ transform: translateY(0); }
+.btn-restart{
+font-family: var(--font-body);
+font-weight: 600;
+font-size: 0.95rem;
+color: var(--starlight);
+background: rgba(255,255,255,0.06);
+border: 1px solid rgba(255,255,255,0.15);
+padding: 0.85rem 2.1rem;
+border-radius: 8px;
+cursor: pointer;
+transition: background 0.15s ease;
+}
+.btn-restart:hover{ background: rgba(255,255,255,0.1); }
+/* ─── CERTIFICATE OF DISCHARGE
+──────────────────────────────── */
+.cert-wrap{ margin-bottom: 1.75rem; }
+.cert{
+background: linear-gradient(160deg, #0F0B22 0%, #0D0B1E 100%);
+border: 1px solid rgba(245,158,11,0.35);
+border-radius: 14px;
+overflow: hidden;
+box-shadow:
+0 0 0 1px rgba(245,158,11,0.08) inset,
+0 24px 60px rgba(0,0,0,0.55);
+position: relative;
+}
+.cert::before, .cert::after{
+content: '';
+position: absolute;
+width: 32px;
+height: 32px;
+
+
+border-color: rgba(245,158,11,0.28);
+border-style: solid;
+}
+.cert::before{ top: 12px; left: 12px; border-width: 1px 0 0 1px; border-radius:
+3px 0 0 0; }
+.cert::after{ top: 12px; right: 12px; border-width: 1px 1px 0 0; border-radius: 0
+3px 0 0; }
+.cert-bottom-corners{ position: absolute; inset: 0; pointer-events: none; }
+.cert-bottom-corners::before,
+.cert-bottom-corners::after{
+content: '';
+position: absolute;
+width: 32px;
+height: 32px;
+border-color: rgba(245,158,11,0.28);
+border-style: solid;
+}
+.cert-bottom-corners::before{ bottom: 12px; left: 12px; border-width: 0 0 1px
+1px; border-radius: 0 0 0 3px; }
+.cert-bottom-corners::after{ bottom: 12px; right: 12px; border-width: 0 1px
+1px 0; border-radius: 0 0 3px 0; }
+.cert-header{
+background: linear-gradient(135deg, rgba(245,158,11,0.1),
+rgba(124,58,237,0.08));
+border-bottom: 1px solid rgba(245,158,11,0.18);
+padding: 1.5rem 1.75rem 1.25rem;
+text-align: center;
+position: relative;
+}
+.cert-issuer{
+font-family: var(--font-mono);
+font-size: 0.62rem;
+letter-spacing: 0.25em;
+text-transform: uppercase;
+color: var(--seal-gold);
+margin-bottom: 0.5rem;
+opacity: 0.85;
+}
+
+
+.cert-title{
+font-family: var(--font-display);
+font-size: 1.35rem;
+font-weight: 700;
+color: #fff;
+letter-spacing: 0.02em;
+margin-bottom: 0.3rem;
+}
+.cert-subtitle{
+font-family: var(--font-mono);
+font-size: 0.68rem;
+letter-spacing: 0.12em;
+color: var(--muted);
+text-transform: uppercase;
+}
+.cert-seal{
+position: absolute;
+right: 1.5rem;
+top: 50%;
+transform: translateY(-50%);
+width: 48px;
+height: 48px;
+border-radius: 50%;
+border: 1.5px solid rgba(245,158,11,0.45);
+background: rgba(245,158,11,0.08);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.4rem;
+}
+.cert-body{ padding: 1.5rem 1.75rem; }
+.cert-section{ margin-bottom: 1.25rem; }
+.cert-section:last-child{ margin-bottom: 0; }
+.cert-section-label{
+font-family: var(--font-mono);
+font-size: 0.6rem;
+letter-spacing: 0.2em;
+
+
+text-transform: uppercase;
+color: var(--seal-gold);
+opacity: 0.7;
+margin-bottom: 0.5rem;
+}
+.cert-field-row{
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 0.75rem 1.25rem;
+}
+.cert-field{ min-width: 0; }
+.cert-field-label{
+font-family: var(--font-mono);
+font-size: 0.6rem;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: var(--muted);
+margin-bottom: 0.2rem;
+}
+.cert-field-value{
+font-size: 0.9rem;
+color: var(--starlight);
+font-weight: 500;
+word-break: break-all;
+line-height: 1.4;
+}
+.cert-field-value.mono{
+font-family: var(--font-mono);
+font-size: 0.72rem;
+color: var(--body-text);
+letter-spacing: 0.02em;
+}
+.cert-field-value.gold{ color: var(--seal-gold); }
+.cert-field-value.green{ color: #4ADE80; }
+.cert-field-value.cyan{ color: var(--cyan); }
+.cert-field-value.violet{ color: #C4B5FD; }
+
+
+
+.cert-divider{
+height: 1px;
+background: linear-gradient(90deg, transparent, rgba(245,158,11,0.18),
+transparent);
+margin: 1.1rem 0;
+}
+.cert-chain{
+display: flex;
+align-items: center;
+gap: 0.6rem;
+flex-wrap: wrap;
+}
+.cert-chain-node{
+background: rgba(124,58,237,0.1);
+border: 1px solid rgba(124,58,237,0.25);
+border-radius: 6px;
+padding: 0.45rem 0.85rem;
+}
+.cert-chain-node .node-name{
+font-size: 0.88rem;
+font-weight: 600;
+color: var(--starlight);
+}
+.cert-chain-node .node-role{
+font-family: var(--font-mono);
+font-size: 0.6rem;
+color: var(--muted);
+letter-spacing: 0.08em;
+text-transform: uppercase;
+margin-top: 0.1rem;
+}
+.cert-chain-arrow{
+color: var(--violet);
+font-size: 1rem;
+opacity: 0.7;
+flex-shrink: 0;
+
+
+}
+.cert-hash{
+font-family: var(--font-mono);
+font-size: 0.68rem;
+color: var(--body-text);
+background: rgba(0,0,0,0.3);
+border: 1px solid rgba(255,255,255,0.06);
+border-radius: 6px;
+padding: 0.65rem 0.85rem;
+word-break: break-all;
+letter-spacing: 0.02em;
+line-height: 1.55;
+}
+.cert-footer{
+background: rgba(0,0,0,0.25);
+border-top: 1px solid rgba(245,158,11,0.12);
+padding: 1rem 1.75rem;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 1rem;
+flex-wrap: wrap;
+}
+.cert-footer-status{
+display: flex;
+align-items: center;
+gap: 0.5rem;
+font-family: var(--font-mono);
+font-size: 0.68rem;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: #4ADE80;
+}
+.cert-footer-status .dot{
+width: 6px;
+height: 6px;
+border-radius: 50%;
+background: #4ADE80;
+
+
+box-shadow: 0 0 6px #4ADE80;
+}
+.cert-verify-link{
+font-family: var(--font-mono);
+font-size: 0.65rem;
+color: var(--cyan);
+letter-spacing: 0.06em;
+text-decoration: none;
+opacity: 0.8;
+transition: opacity 0.2s;
+}
+.cert-verify-link:hover{ opacity: 1; }
+/* ─── FOUR-PARTY ATTESTATION BLOCKS
+──────────────────────────── */
+.attestation-upper{
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 0.75rem;
+margin-bottom: 0.75rem;
+}
+.att-block{
+border-radius: 10px;
+padding: 1rem 1.1rem 1rem;
+position: relative;
+}
+.att-block.finance{
+background: rgba(245,158,11,0.05);
+border: 1px solid rgba(245,158,11,0.28);
+}
+.att-block.slim{
+background: rgba(124,58,237,0.06);
+border: 1px solid rgba(124,58,237,0.28);
+}
+.att-block.legal{
+background: rgba(6,182,212,0.05);
+border: 1px solid rgba(6,182,212,0.28);
+
+
+}
+/* Ledger spans full width — binding element */
+.att-block.ledger{
+background: rgba(74,222,128,0.04);
+border: 1px solid rgba(74,222,128,0.26);
+display: grid;
+grid-template-columns: 1fr auto;
+gap: 0.85rem 1.5rem;
+align-items: center;
+padding: 1rem 1.25rem;
+}
+.att-ledger-left{}
+.att-ledger-right{
+text-align: right;
+flex-shrink: 0;
+}
+.att-number{
+font-family: var(--font-mono);
+font-size: 0.57rem;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+margin-bottom: 0.3rem;
+display: flex;
+align-items: center;
+gap: 0.5rem;
+}
+.att-block.finance .att-number{ color: var(--seal-gold); }
+.att-block.slim .att-number{ color: #C4B5FD; }
+.att-block.legal .att-number{ color: var(--cyan); }
+.att-block.ledger .att-number{ color: #4ADE80; }
+.att-role{
+font-family: var(--font-display);
+font-size: 0.92rem;
+font-weight: 700;
+color: var(--starlight);
+margin-bottom: 0.35rem;
+line-height: 1.2;
+
+
+}
+.att-certifies{
+font-size: 0.78rem;
+color: var(--muted);
+line-height: 1.5;
+margin-bottom: 0.75rem;
+}
+.att-block.ledger .att-certifies{
+margin-bottom: 0;
+font-size: 0.8rem;
+}
+.att-sig{
+font-family: var(--font-mono);
+font-size: 0.58rem;
+color: var(--body-text);
+background: rgba(0,0,0,0.28);
+border-radius: 4px;
+padding: 0.4rem 0.6rem;
+word-break: break-all;
+letter-spacing: 0.02em;
+line-height: 1.55;
+}
+.att-sig-label{
+display: block;
+font-size: 0.52rem;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+margin-bottom: 0.2rem;
+}
+.att-block.finance .att-sig-label{ color: var(--seal-gold); opacity: 0.7; }
+.att-block.slim .att-sig-label{ color: #C4B5FD; opacity: 0.7; }
+.att-block.legal .att-sig-label{ color: var(--cyan); opacity: 0.7; }
+.att-block.ledger .att-sig-label{ color: #4ADE80; opacity: 0.7; }
+.att-pill{
+font-family: var(--font-mono);
+font-size: 0.58rem;
+
+
+letter-spacing: 0.1em;
+text-transform: uppercase;
+padding: 0.22rem 0.6rem;
+border-radius: 20px;
+white-space: nowrap;
+margin-bottom: 0.5rem;
+display: inline-block;
+}
+.att-pill.amber{ background: rgba(245,158,11,0.12); color: var(--seal-gold);
+border: 1px solid rgba(245,158,11,0.3); }
+.att-pill.violet{ background: rgba(124,58,237,0.15); color: #C4B5FD; border:
+1px solid rgba(124,58,237,0.35); }
+.att-pill.cyan{ background: rgba(6,182,212,0.12); color: var(--cyan); border: 1px
+solid rgba(6,182,212,0.3); }
+.att-pill.green{ background: rgba(74,222,128,0.1); color: #4ADE80; border: 1px
+solid rgba(74,222,128,0.28); }
+.ledger-bind-label{
+font-family: var(--font-mono);
+font-size: 0.55rem;
+letter-spacing: 0.18em;
+text-transform: uppercase;
+color: rgba(74,222,128,0.5);
+text-align: center;
+padding: 0.35rem 0;
+position: relative;
+}
+.ledger-bind-label::before,
+.ledger-bind-label::after{
+content: '';
+position: absolute;
+top: 50%;
+width: 30%;
+height: 1px;
+background: linear-gradient(90deg, transparent, rgba(74,222,128,0.2));
+}
+.ledger-bind-label::before{ left: 0; }
+.ledger-bind-label::after{ right: 0; transform: scaleX(-1); }
+
+
+/* ─── END OF WATCH
+────── */
+.end-of-watch{
+text-align: center;
+padding: 1.35rem 1.75rem;
+background: rgba(6,182,212,0.05);
+border: 1px solid rgba(6,182,212,0.18);
+border-radius: 12px;
+margin-bottom: 2rem;
+display: flex;
+align-items: center;
+gap: 1rem;
+justify-content: center;
+}
+.end-of-watch .ccb-glyph{
+font-size: 1.75rem;
+flex-shrink: 0;
+}
+.end-of-watch-text{ text-align: left; }
+.end-of-watch-name{
+font-family: var(--font-mono);
+font-size: 0.65rem;
+letter-spacing: 0.14em;
+text-transform: uppercase;
+color: var(--cyan);
+margin-bottom: 0.25rem;
+}
+.end-of-watch-line{
+font-style: italic;
+font-size: 0.92rem;
+color: var(--starlight);
+line-height: 1.5;
+}
+/* ─── LIBRARY CARD
+────── */
+
+
+.lib-card{
+background: linear-gradient(135deg, #0A0F1E 0%, #0D1424 100%);
+border: 1px solid rgba(245,158,11,0.25);
+border-radius: 10px;
+padding: 1.5rem;
+margin-bottom: 1rem;
+position: relative;
+overflow: hidden;
+}
+
+📋
+
+.lib-card::before{
+content: ' ';
+position: absolute;
+right: 1.25rem;
+top: 1.1rem;
+font-size: 1.6rem;
+opacity: 0.18;
+}
+.lib-card-header{
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 1rem;
+padding-bottom: 0.85rem;
+border-bottom: 1px solid rgba(245,158,11,0.12);
+}
+.lib-card-title{
+font-family: var(--font-display);
+font-size: 1.1rem;
+font-weight: 700;
+color: var(--starlight);
+}
+.lib-card-title .sub{
+display: block;
+font-family: var(--font-mono);
+font-size: 0.65rem;
+color: var(--muted);
+font-weight: 400;
+margin-top: 0.2rem;
+
+
+letter-spacing: 0.06em;
+}
+.lib-timeline{
+display: flex;
+align-items: stretch;
+gap: 0;
+margin: 0.5rem 0 0.25rem;
+}
+.lib-event{
+flex: 1;
+padding: 0.85rem 0.85rem 0.85rem 0;
+position: relative;
+}
+.lib-event:not(:last-child)::after{
+content: '→';
+position: absolute;
+right: -0.1rem;
+top: 50%;
+transform: translateY(-50%);
+color: var(--seal-gold);
+opacity: 0.5;
+font-size: 0.9rem;
+}
+.lib-event-label{
+font-family: var(--font-mono);
+font-size: 0.6rem;
+letter-spacing: 0.14em;
+text-transform: uppercase;
+color: var(--muted);
+margin-bottom: 0.3rem;
+}
+.lib-event-value{
+font-size: 0.88rem;
+color: var(--starlight);
+font-weight: 500;
+line-height: 1.35;
+}
+
+
+
+.lib-event-value.gold{ color: var(--seal-gold); }
+.lib-event-value.green{ color: #4ADE80; }
+.lib-sig{
+margin-top: 0.85rem;
+padding: 0.6rem 0.85rem;
+background: rgba(0,0,0,0.25);
+border-radius: 6px;
+border: 1px solid rgba(255,255,255,0.05);
+font-family: var(--font-mono);
+font-size: 0.65rem;
+color: var(--body-text);
+letter-spacing: 0.03em;
+word-break: break-all;
+}
+.lib-sig .sig-label{
+color: var(--seal-gold);
+opacity: 0.7;
+font-size: 0.6rem;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+display: block;
+margin-bottom: 0.25rem;
+}
+/* ─── FORENSIC WATERMARK CARD
+────────────────────────────────── */
+.wmk-card{
+background: linear-gradient(135deg, #080616 0%, #0E0B1E 100%);
+border: 1px solid rgba(124,58,237,0.32);
+border-radius: 10px;
+padding: 1.5rem;
+margin-bottom: 1rem;
+position: relative;
+overflow: hidden;
+}
+
+🔏
+
+.wmk-card::before{
+content: ' ';
+position: absolute;
+
+
+right: 1.25rem;
+top: 1.1rem;
+font-size: 1.6rem;
+opacity: 0.13;
+}
+.wmk-header{
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 1rem;
+padding-bottom: 0.85rem;
+border-bottom: 1px solid rgba(124,58,237,0.16);
+}
+.wmk-title{
+font-family: var(--font-display);
+font-size: 1.1rem;
+font-weight: 700;
+color: var(--starlight);
+}
+.wmk-title .sub{
+display: block;
+font-family: var(--font-mono);
+font-size: 0.65rem;
+color: var(--muted);
+font-weight: 400;
+margin-top: 0.2rem;
+letter-spacing: 0.06em;
+}
+.wmk-token-block{
+margin: 0.85rem 0;
+padding: 0.65rem 0.85rem;
+background: rgba(0,0,0,0.32);
+border: 1px solid rgba(124,58,237,0.18);
+border-radius: 6px;
+}
+.wmk-token-label{
+font-family: var(--font-mono);
+
+
+font-size: 0.6rem;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+color: #C4B5FD;
+opacity: 0.75;
+display: block;
+margin-bottom: 0.3rem;
+}
+.wmk-token-value{
+font-family: var(--font-mono);
+font-size: 0.66rem;
+color: var(--body-text);
+word-break: break-all;
+letter-spacing: 0.02em;
+line-height: 1.6;
+}
+.wmk-tagline{
+padding: 0.65rem 0.9rem;
+background: rgba(124,58,237,0.05);
+border-left: 2px solid rgba(124,58,237,0.42);
+border-radius: 0 6px 6px 0;
+font-style: italic;
+font-size: 0.83rem;
+color: var(--body-text);
+line-height: 1.55;
+}
+/* ─── DOCUMENT ACCESS TOKEN CARD
+─────────────────────────────── */
+.dat-card{
+background: linear-gradient(135deg, #060D14 0%, #071218 100%);
+border: 1px solid rgba(6,182,212,0.3);
+border-radius: 10px;
+padding: 1.5rem;
+margin-bottom: 1.5rem;
+position: relative;
+overflow: hidden;
+}
+.dat-card::before{
+
+
+
+🔐
+
+content: ' ';
+position: absolute;
+right: 1.25rem;
+top: 1.1rem;
+font-size: 1.6rem;
+opacity: 0.12;
+}
+.dat-header{
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+margin-bottom: 1rem;
+padding-bottom: 0.85rem;
+border-bottom: 1px solid rgba(6,182,212,0.14);
+}
+.dat-title{
+font-family: var(--font-display);
+font-size: 1.1rem;
+font-weight: 700;
+color: var(--starlight);
+}
+.dat-title .sub{
+display: block;
+font-family: var(--font-mono);
+font-size: 0.65rem;
+color: var(--muted);
+font-weight: 400;
+margin-top: 0.2rem;
+letter-spacing: 0.06em;
+}
+.dat-verify-block{
+margin: 0.85rem 0;
+padding: 0.65rem 0.85rem;
+background: rgba(0,0,0,0.3);
+border: 1px solid rgba(6,182,212,0.15);
+border-radius: 6px;
+}
+
+
+.dat-verify-label{
+font-family: var(--font-mono);
+font-size: 0.6rem;
+letter-spacing: 0.15em;
+text-transform: uppercase;
+color: var(--cyan);
+opacity: 0.75;
+display: block;
+margin-bottom: 0.3rem;
+}
+.dat-verify-url{
+font-family: var(--font-mono);
+font-size: 0.66rem;
+color: var(--body-text);
+word-break: break-all;
+letter-spacing: 0.02em;
+line-height: 1.6;
+}
+.dat-verify-url .response{
+color: #4ADE80;
+margin-top: 0.25rem;
+display: block;
+}
+.dat-tagline{
+padding: 0.65rem 0.9rem;
+background: rgba(6,182,212,0.04);
+border-left: 2px solid rgba(6,182,212,0.4);
+border-radius: 0 6px 6px 0;
+font-style: italic;
+font-size: 0.83rem;
+color: var(--body-text);
+line-height: 1.5;
+}
+/* ─── AMENDMENT ADDENDUM
+*/
+.amend-card{
+background: rgba(245,158,11,0.04);
+
+
+border: 1px solid rgba(245,158,11,0.28);
+border-radius: 12px;
+padding: 1.75rem;
+margin-bottom: 1.25rem;
+}
+.amend-label{
+font-family: var(--font-mono);
+font-size: 0.65rem;
+letter-spacing: 0.16em;
+text-transform: uppercase;
+color: var(--seal-gold);
+margin-bottom: 1rem;
+padding-bottom: 0.75rem;
+border-bottom: 1px solid rgba(245,158,11,0.15);
+}
+.amend-chain{
+font-family: var(--font-mono);
+font-size: 0.68rem;
+color: var(--muted);
+background: rgba(0,0,0,0.3);
+border-radius: 7px;
+padding: 0.85rem 1rem;
+margin-top: 1.1rem;
+line-height: 1.85;
+}
+.amend-chain .chain-ref{ color: var(--cyan); }
+.amend-chain .chain-seal{ color: var(--seal-gold); }
+.holder-grid{
+display: flex;
+flex-direction: column;
+gap: 0.55rem;
+margin-top: 0.85rem;
+}
+.holder-row{
+display: flex;
+justify-content: space-between;
+align-items: center;
+
+
+padding: 0.65rem 0.9rem;
+background: rgba(255,255,255,0.025);
+border-radius: 7px;
+border: 1px solid rgba(255,255,255,0.06);
+gap: 0.75rem;
+}
+.holder-name{
+font-size: 0.88rem;
+color: var(--body-text);
+font-weight: 500;
+}
+.holder-role{
+font-family: var(--font-mono);
+font-size: 0.62rem;
+letter-spacing: 0.06em;
+color: var(--muted);
+margin-top: 0.15rem;
+}
+.dec-dual{
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1px;
+background: rgba(255,255,255,0.07);
+border-radius: 9px;
+overflow: hidden;
+margin-top: 1.25rem;
+}
+.dec-dual-cell{
+background: rgba(255,255,255,0.025);
+padding: 1rem 1.25rem;
+}
+.dec-dual-label{
+font-family: var(--font-mono);
+font-size: 0.62rem;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: var(--muted);
+
+
+margin-bottom: 0.35rem;
+}
+.dec-dual-value{
+font-size: 0.95rem;
+font-weight: 600;
+}
+.dec-dual-value.green{ color: #4ADE80; }
+.dec-dual-value.amber{ color: var(--seal-gold); }
+/* ─── ATTESTATION DEFINITIONS
+────────────────────────────────── */
+.att-defs{
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 0.7rem;
+margin-top: 1.75rem;
+padding-top: 1.5rem;
+border-top: 1px solid rgba(255,255,255,0.06);
+}
+.att-def{
+padding: 0.9rem 1rem;
+background: rgba(255,255,255,0.02);
+border: 1px solid rgba(255,255,255,0.06);
+border-radius: 8px;
+}
+.att-def-label{
+font-family: var(--font-mono);
+font-size: 0.62rem;
+letter-spacing: 0.14em;
+text-transform: uppercase;
+color: var(--seal-gold);
+margin-bottom: 0.4rem;
+}
+.att-def-desc{
+font-size: 0.84rem;
+color: var(--muted);
+line-height: 1.5;
+
+
+}
+/* ─── FOOTER
+──────────── */
+.footer-tag{
+text-align: center;
+padding: 1.25rem 2rem 1.75rem;
+font-family: var(--font-mono);
+font-size: 0.65rem;
+letter-spacing: 0.1em;
+color: var(--muted);
+opacity: 0.55;
+}
+@media (max-width: 560px){
+.field-grid{ grid-template-columns: 1fr; }
+.card-header{ flex-direction: column; gap: 0.6rem; }
+.progress-labels span{ font-size: 0.52rem; }
+.lib-timeline{ flex-direction: column; }
+.lib-event::after{ display: none; }
+.cert-field-row{ grid-template-columns: 1fr; }
+.dat-header{ flex-direction: column; gap: 0.6rem; }
+.wmk-header{ flex-direction: column; gap: 0.6rem; }
+.attestation-upper{ grid-template-columns: 1fr; }
+.att-block.ledger{ grid-template-columns: 1fr; }
+.att-ledger-right{ text-align: left; }
+}
+
+/* ─── EAI PHILOSOPHY BANNER ─────────────────────────────── */
+.eai-banner{
+  background:rgba(124,58,237,0.06);
+  border:1px solid rgba(124,58,237,0.22);
+  border-left:3px solid var(--violet);
+  border-radius:0 10px 10px 0;
+  padding:0.9rem 1.25rem;
+  margin-bottom:1.5rem;
+}
+.eai-banner-label{
+  font-family:var(--font-mono);
+  font-size:0.58rem;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:#C4B5FD;
+  opacity:0.8;
+  margin-bottom:0.3rem;
+}
+.eai-banner-text{
+  font-style:italic;
+  font-size:0.87rem;
+  color:var(--body-text);
+  line-height:1.6;
+}
+
+/* ─── REVIEWER UTILITY ───────────────────────────────────── */
+.reviewer-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:0.7rem;
+  margin-top:0.25rem;
+}
+.reviewer-panel{
+  border-radius:8px;
+  padding:0.9rem 1rem;
+}
+.reviewer-panel.rp-lawyers{
+  background:rgba(6,182,212,0.05);
+  border:1px solid rgba(6,182,212,0.24);
+}
+.reviewer-panel.rp-boards{
+  background:rgba(245,158,11,0.04);
+  border:1px solid rgba(245,158,11,0.22);
+}
+.reviewer-panel.rp-future{
+  background:rgba(124,58,237,0.05);
+  border:1px solid rgba(124,58,237,0.22);
+}
+.reviewer-panel-lbl{
+  font-family:var(--font-mono);
+  font-size:0.58rem;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  padding-bottom:0.5rem;
+  margin-bottom:0.55rem;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.rp-lawyers .reviewer-panel-lbl{color:var(--cyan);}
+.rp-boards  .reviewer-panel-lbl{color:var(--seal-gold);}
+.rp-future  .reviewer-panel-lbl{color:#C4B5FD;}
+.rp-item{
+  font-size:0.77rem;
+  color:var(--muted);
+  line-height:1.45;
+  padding:0.28rem 0;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  display:flex;
+  gap:0.4rem;
+  align-items:flex-start;
+}
+.rp-item:last-child{border-bottom:none;}
+.rp-item::before{
+  content:'→';
+  font-family:var(--font-mono);
+  font-size:0.68rem;
+  flex-shrink:0;
+  margin-top:0.05rem;
+  opacity:0.55;
+}
+.rp-lawyers .rp-item::before{color:var(--cyan);}
+.rp-boards  .rp-item::before{color:var(--seal-gold);}
+.rp-future  .rp-item::before{color:#C4B5FD;}
+
+/* ─── STEWARDSHIP ACTION LOG ─────────────────────────────── */
+.action-log{
+  background:rgba(0,0,0,0.18);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:8px;
+  overflow:hidden;
+  margin-top:0.25rem;
+}
+.al-header{
+  background:rgba(255,255,255,0.03);
+  padding:0.55rem 1rem;
+  display:grid;
+  grid-template-columns:2fr 1.6fr 1fr 1fr;
+  gap:0.5rem;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+}
+.al-col{
+  font-family:var(--font-mono);
+  font-size:0.54rem;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--muted);
+}
+.al-row{
+  padding:0.48rem 1rem;
+  display:grid;
+  grid-template-columns:2fr 1.6fr 1fr 1fr;
+  gap:0.5rem;
+  border-bottom:1px solid rgba(255,255,255,0.04);
+  align-items:center;
+}
+.al-row:last-child{border-bottom:none;}
+.al-row:hover{background:rgba(255,255,255,0.02);}
+.al-action{
+  font-size:0.78rem;
+  color:var(--starlight);
+  font-weight:500;
+  display:flex;
+  align-items:center;
+  gap:0.4rem;
+}
+.al-action::before{
+  content:'✓';
+  color:#4ADE80;
+  font-family:var(--font-mono);
+  font-size:0.68rem;
+  flex-shrink:0;
+}
+.al-who{font-size:0.74rem;color:var(--body-text);}
+.al-when{font-family:var(--font-mono);font-size:0.64rem;color:var(--muted);}
+.al-by{font-family:var(--font-mono);font-size:0.6rem;color:#4ADE80;opacity:0.75;}
+
+@media(max-width:560px){
+  .reviewer-grid{grid-template-columns:1fr;}
+  .al-header,.al-row{grid-template-columns:2fr 1fr;}
+  .al-col:nth-child(3),.al-col:nth-child(4),
+  .al-when,.al-by{display:none;}
+}
+
 </style>
 </head>
 <body>
-
 <div class="progress-wrap">
-  <div class="progress-track" id="progressTrack"></div>
-  <div class="progress-labels" id="progressLabels"></div>
+<div class="progress-track" id="progressTrack"></div>
+<div class="progress-labels" id="progressLabels"></div>
 </div>
-
 <div class="stage" id="stage"></div>
+<div class="footer-tag">Stewardship Lifecycle Infrastructure Management
+// M&A — MNPI // Seven Moments // EAI (Evidence as Infrastructure)</div>
 
-<div class="footer-tag">Stewardship Lifecycle Infrastructure Management // M&A — MNPI // Seven Moments // EAI (Evidence as Infrastructure)</div>
 
 <script>
+
 (function(){
+const acts = [
+  { key: 'obligation',  label: 'Obligation' },
+  { key: 'boundary',   label: 'Trust Boundary' },
+  { key: 'memory',     label: 'Institutional Memory' },
+  { key: 'harbor',     label: 'Safe Harbor' },
+  { key: 'library',    label: 'Library Card' },
+  { key: 'management', label: 'Management Boundary' },
+  { key: 'amendment',  label: 'Post-Closing' }
+];
+let current = 0;
+const track  = document.getElementById('progressTrack');
+const labels = document.getElementById('progressLabels');
+const stage  = document.getElementById('stage');
 
-  const acts = [
-    { key: 'obligation', label: 'Obligation'           },
-    { key: 'boundary',   label: 'Trust Boundary'       },
-    { key: 'memory',     label: 'Institutional Memory' },
-    { key: 'harbor',     label: 'Safe Harbor'          },
-    { key: 'library',    label: 'Library Card'         },
-    { key: 'management', label: 'Management Boundary'  },
-    { key: 'amendment',  label: 'Post-Closing'         }
-  ];
+acts.forEach((a) => {
+  const seg = document.createElement('div');
+  seg.className = 'progress-seg';
+  seg.innerHTML = '<div class="fill"></div>';
+  track.appendChild(seg);
+  const lbl = document.createElement('span');
+  lbl.textContent = a.label;
+  labels.appendChild(lbl);
+});
 
-  let current = 0;
-
-  const track  = document.getElementById('progressTrack');
-  const labels = document.getElementById('progressLabels');
-  const stage  = document.getElementById('stage');
-
-  acts.forEach((a) => {
-    const seg = document.createElement('div');
-    seg.className = 'progress-seg';
-    seg.innerHTML = '<div class="fill"></div>';
-    track.appendChild(seg);
-    const lbl = document.createElement('span');
-    lbl.textContent = a.label;
-    labels.appendChild(lbl);
+function renderProgress(){
+  const segs = track.querySelectorAll('.progress-seg .fill');
+  const lbls = labels.querySelectorAll('span');
+  segs.forEach((f, i) => {
+    if (current >= acts.length){ f.style.transform = 'scaleX(1)'; return; }
+    f.style.transform = i < current ? 'scaleX(1)' : (i === current ? 'scaleX(0.5)' : 'scaleX(0)');
   });
+  lbls.forEach((l, i) => {
+    l.classList.remove('current','done');
+    if (i < current || current >= acts.length) l.classList.add('done');
+    else if (i === current) l.classList.add('current');
+  });
+}
 
-  function renderProgress(){
-    const segs = track.querySelectorAll('.progress-seg .fill');
-    const lbls = labels.querySelectorAll('span');
-    segs.forEach((f, i) => {
-      if (current >= acts.length){ f.style.transform = 'scaleX(1)'; return; }
-      f.style.transform = i < current ? 'scaleX(1)' : (i === current ? 'scaleX(0.5)' : 'scaleX(0)');
-    });
-    lbls.forEach((l, i) => {
-      l.classList.remove('current','done');
-      if (i < current || current >= acts.length) l.classList.add('done');
-      else if (i === current) l.classList.add('current');
-    });
+function voiceHTML(agent, name, line){
+  const icon = agent === 'purple' ? '🟣' : '🌟';
+  return `<div class="voice ${agent}">
+<div class="voice-icon">${icon}</div>
+<div class="voice-body">
+<div class="voice-name">${name}</div>
+<div class="voice-line">"${line}"</div>
+</div>
+</div>`;
+}
+
+function controlsHTML(showBack){
+  return `<div class="controls">
+<button class="btn-back" id="btnBack" ${showBack ? '' : 'disabled'}>← Back</button>
+<button class="btn-continue" id="btnNext">Continue</button>
+</div>`;
+}
+
+// ── ACT I ──────────────────────────────────────────────────────────────────
+function sceneObligation(){
+return `
+<div class="act">
+<div class="act-eyebrow">Act I — The Obligation</div>
+<h1 class="act-title">Something requires stewardship.</h1>
+<p class="act-sub">Every consequential decision begins the same way — someone accepts custody of material non-public information.</p>
+<div class="data-card">
+<div class="card-header">
+<div class="card-name">Deal Qualification — Project Atlas<span class="sub">UDT-DEAL-2026-IB-0391</span></div>
+<div class="status-pill green">● Active</div>
+</div>
+<div class="field-grid">
+<div class="field">
+<div class="field-label">Primary Transaction Steward</div>
+<div class="field-value">Sarah Chen, VP — M&amp;A Advisory</div>
+</div>
+<div class="field">
+<div class="field-label">Risk Classification</div>
+<div class="field-value risk">MNPI — Material Non-Public</div>
+</div>
+<div class="divider-line"></div>
+<div class="field">
+<div class="field-label">Domain</div>
+<div class="field-value">Investment Banking — M&amp;A Advisory</div>
+</div>
+<div class="field">
+<div class="field-label">Next Milestone</div>
+<div class="field-value">Fairness Opinion Review</div>
+</div>
+</div>
+</div>
+${voiceHTML('purple','Purple Coach','Every obligation involving material non-public information requires a named, accountable transaction steward. Sarah has accepted custody. The first Evidence Instrument is created here — sealed, timestamped, non-repudiable. This is not documentation of intent. What occurred, who owns it, when it began — that is independently verifiable stewardship. Every action that follows will be observable, attributable, and provable without calling anyone.')}
+${controlsHTML(false)}
+</div>
+`;
+}
+
+// ── ACT II ─────────────────────────────────────────────────────────────────
+function sceneBoundary(){
+return `
+<div class="act">
+<div class="act-eyebrow">Act II — Trust Boundary Crossed</div>
+<h1 class="act-title">Something goes wrong.</h1>
+<p class="act-sub">The target company's auditor issues a material financial restatement. Every deal instrument built on those financials is compromised — automatically identified, and every document access token across all affected deals is recalled immediately.</p>
+<div class="data-card alert">
+<div class="card-header">
+<div class="card-name">Counterparty Disclosure<span class="sub">Financial Restatement Issued</span></div>
+<div class="status-pill red">Cascade Detected</div>
+</div>
+<div class="field-grid">
+<div class="field">
+<div class="field-label">Halted at Source</div>
+<div class="field-value big risk">1</div>
+</div>
+<div class="field">
+<div class="field-label">Flagged for Review</div>
+<div class="field-value big" style="color:var(--seal-gold)">7</div>
+</div>
+<div class="divider-line"></div>
+<div class="field">
+<div class="field-label">Pending Mandates at Risk</div>
+<div class="field-value">3 Active Mandates</div>
+</div>
+<div class="field">
+<div class="field-label">Detection</div>
+<div class="field-value accent">Automatic — no manual audit required</div>
+</div>
+<div class="divider-line"></div>
+<div class="field">
+<div class="field-label">Document Tokens Recalled</div>
+<div class="field-value accent">7 — Automatic</div>
+</div>
+<div class="field">
+<div class="field-label">Perimeter</div>
+<div class="field-value accent">Document access collapsed at cascade</div>
+</div>
+</div>
+</div>
+${voiceHTML('purple','Purple Coach','A trust boundary has been crossed. Every deal instrument that depended on these financials has been identified — not by a compliance officer searching manually, but by the ledger itself. Document access tokens across all seven flagged obligations were revoked the instant the cascade fired.')}
+${voiceHTML('ccb','Golden Steward','One halted clean at source. Seven downstream obligations flagged. Seven tokens recalled in the same second the cascade fired — automatic, no manual intervention. Nothing slips through quiet.')}
+${controlsHTML(true)}
+</div>
+`;
+}
+
+// ── ACT III ────────────────────────────────────────────────────────────────
+function sceneMemory(){
+return `
+<div class="act">
+<div class="act-eyebrow">Act III — Institutional Memory</div>
+<h1 class="act-title">Has this happened before?</h1>
+<p class="act-sub">Purple becomes valuable here — not because it predicts, but because it remembers every material disclosure event that already closed.</p>
+<div class="data-card memory">
+<div class="card-header">
+<div class="card-name">Institutional Memory<span class="sub">Material Disclosure Event — M&amp;A Advisory</span></div>
+<div class="status-pill violet">247 Cases</div>
+</div>
+<div class="field-grid">
+<div class="field">
+<div class="field-label">Similar Cases</div>
+<div class="field-value big">247</div>
+</div>
+<div class="field">
+<div class="field-label">Typical Resolution</div>
+<div class="field-value big">2 Days</div>
+</div>
+<div class="divider-line"></div>
+<div class="field">
+<div class="field-label">Historical Risk Rate</div>
+<div class="field-value accent">4.1%</div>
+</div>
+<div class="field">
+<div class="field-label">Recurring Pattern</div>
+<div class="field-value">Independent valuation before revised fairness opinion</div>
+</div>
+</div>
+</div>
+${voiceHTML('purple','Purple Coach','Institutional Memory found 247 similar material disclosure events. Nothing here is a forecast — it is a record of what already happened, and what resolved cleanly.')}
+${controlsHTML(true)}
+</div>
+`;
+}
+
+// ── ACT IV ─────────────────────────────────────────────────────────────────
+function sceneHarbor(){
+return `
+<div class="act">
+<div class="act-eyebrow">Act IV — Safe Harbor Transfer</div>
+<h1 class="act-title">The transaction steward must recuse.</h1>
+<p class="act-sub">Sarah discovers a potential conflict of interest mid-deal. The obligation cannot sit unowned. A qualified transaction steward accepts custody — after reviewing the full deal history.</p>
+<div class="data-card harbor">
+<div class="card-header">
+<div class="card-name">Primary Transaction Steward<span class="sub">Sarah Chen — Recusal Required</span></div>
+<div class="status-pill amber">Unavailable</div>
+</div>
+<div class="field-grid">
+<div class="field">
+<div class="field-label">Safe Harbor</div>
+<div class="field-value" style="color:var(--seal-gold)">Transfer Required</div>
+</div>
+<div class="field">
+<div class="field-label">Incoming Transaction Steward</div>
+<div class="field-value">James Wilson, Associate Director</div>
+</div>
+<div class="divider-line"></div>
+<div class="field">
+<div class="field-label">Authority Check</div>
+<div class="field-value accent">Verified — Departmental Clearance</div>
+</div>
+<div class="field">
+<div class="field-label">Pre-Deal Briefing</div>
+<div class="field-value">Full deal history reviewed before custody accepted</div>
+</div>
+</div>
+</div>
+${voiceHTML('ccb','Golden Steward','No Transaction Steward is left holding MNPI without a documented custodian. One click, and custody transfers seamlessly.')}
+${voiceHTML('purple','Purple Coach','James has reviewed the full history of this obligation before accepting it. The chain of custody is unbroken. The deal can continue.')}
+${controlsHTML(true)}
+</div>
+`;
+}
+
+// ── ACT V ──────────────────────────────────────────────────────────────────
+function sceneLibraryCard(){
+return `
+<div class="act">
+<div class="act-eyebrow">Act V — Library Card + Watermark + Document Perimeter</div>
+<h1 class="act-title">The deal file leaves the building.</h1>
+<p class="act-sub">James takes the deal memorandum home over the weekend. SLIM creates three instruments simultaneously: a transaction steward-signed custody record, a forensic watermark embedded imperceptibly into the document's visual canvas, and a cryptographic access token any document server can verify before serving the file.</p>
+<div class="lib-card">
+<div class="lib-card-header">
+<div class="lib-card-title">Offsite Access Record<span class="sub">OAR-2026-0041 // Library Card</span></div>
+<div class="status-pill green">● Checked In</div>
+</div>
+<div class="lib-timeline">
+<div class="lib-event">
+<div class="lib-event-label">Checkout</div>
+<div class="lib-event-value gold">Fri Jun 6 — 18:30</div>
+<div class="lib-event-label" style="margin-top:0.25rem;">James Wilson</div>
+</div>
+<div class="lib-event">
+<div class="lib-event-label">Location</div>
+<div class="lib-event-value">Home office<br>New York, NY</div>
+</div>
+<div class="lib-event">
+<div class="lib-event-label">Authorized</div>
+<div class="lib-event-value">48 hours</div>
+</div>
+<div class="lib-event">
+<div class="lib-event-label">Checkin</div>
+<div class="lib-event-value green">Sun Jun 8 — 09:14</div>
+<div class="lib-event-label" style="margin-top:0.25rem;">On time — clean</div>
+</div>
+</div>
+<div class="lib-sig">
+<span class="sig-label">Transaction Steward Signature (Checkout)</span>
+hmac-sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2
+</div>
+<div class="lib-sig" style="margin-top:0.5rem;">
+<span class="sig-label">Transaction Steward Signature (Checkin)</span>
+hmac-sha256:f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4
+</div>
+</div>
+<div class="wmk-card">
+<div class="wmk-header">
+<div class="wmk-title">Visual Forensic Watermark<span class="sub">wmk_9f8e7d6c5b4a3b2c // Leak Attribution Instrument</span></div>
+<div class="status-pill violet">● Embedded</div>
+</div>
+<div class="field-grid">
+<div class="field">
+<div class="field-label">Encoded: Transaction Steward</div>
+<div class="field-value">James Wilson</div>
+</div>
+<div class="field">
+<div class="field-label">Encoded: Timestamp</div>
+<div class="field-value" style="color:var(--seal-gold)">Fri Jun 6 — 18:30</div>
+</div>
+<div class="field">
+<div class="field-label">Encoded: Device</div>
+<div class="field-value">Endpoint fingerprint</div>
+</div>
+<div class="field">
+<div class="field-label">Visible to Human Eye</div>
+<div class="field-value" style="color:#4ADE80">No — Imperceptible</div>
+</div>
+</div>
+<div class="wmk-token-block">
+<span class="wmk-token-label">Watermark ID — Maps to Offsite Record OAR-2026-0041</span>
+<div class="wmk-token-value">wmk_9f8e7d6c5b4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8</div>
+</div>
+<div class="wmk-tagline">"The watermark does not prevent a leak. It converts one into evidence." — If this document surfaces anywhere it should not — including a photograph taken with a phone camera — forensic extraction returns this token. It maps back to this transaction steward, this timestamp, this deal. The record was made at checkout, before anything went wrong.</div>
+</div>
+<div class="dat-card">
+<div class="dat-header">
+<div class="dat-title">Document Access Token<span class="sub">dat_f7a8b9c0d1e2f3a4 // Perimeter Instrument</span></div>
+<div class="status-pill green">● Revoked — Clean</div>
+</div>
+<div class="field-grid">
+<div class="field">
+<div class="field-label">Issued at Checkout</div>
+<div class="field-value" style="color:var(--seal-gold)">Fri Jun 6 — 18:30</div>
+</div>
+<div class="field">
+<div class="field-label">Revoked at Checkin</div>
+<div class="field-value" style="color:#4ADE80">Sun Jun 8 — 09:14</div>
+</div>
+<div class="field">
+<div class="field-label">Revocation Trigger</div>
+<div class="field-value accent">CHECKIN_COMPLETED — Automatic</div>
+</div>
+<div class="field">
+<div class="field-label">Works With</div>
+<div class="field-value">SharePoint · S3 · iManage · Any DMS</div>
+</div>
+</div>
+<div class="dat-verify-block">
+<span class="dat-verify-label">Verify Endpoint — Public · Unauthenticated · No Deal Data Exposed</span>
+<div class="dat-verify-url">GET slim.api/v1/document-access-token/verify/dat_f7a8b9c0d1e2f3a4<span class="response">→ {"valid": false, "reason": "REVOKED"}</span></div>
+</div>
+<div class="dat-tagline">"The perimeter is the protocol, not the platform." — Any document server checks this URL before serving the file. SLIM answers valid or revoked. The document server enforces it.</div>
+</div>
+${voiceHTML('purple','Purple Coach','James signed for the obligation when he took it offsite, and signed again when he returned it. At checkout, SLIM simultaneously issued a Document Access Token and embedded a forensic watermark into the document\'s visual canvas — encoding James\'s identity, the checkout timestamp, and device telemetry, imperceptibly. The instant James checked in, the token was revoked automatically. If this document ever surfaces somewhere it should not — including a photograph taken with a phone camera — the watermark maps it back to this exact checkout record. This is what matters in discovery.')}
+${voiceHTML('ccb','Golden Steward','Card issued Friday. Watermark embedded — imperceptible, permanent. DAT active. Card returned Sunday — on time and clean. DAT revoked automatically. Three instruments. One clean deal. Excellent adherence to protocol by the Transaction Steward.')}
+${controlsHTML(true)}
+</div>
+`;
+}
+
+// ── ACT VI ─────────────────────────────────────────────────────────────────
+function sceneManagement(){
+return `
+<div class="act">
+<div class="act-eyebrow">Act VI — Management Boundary</div>
+<h1 class="act-title">The Managing Director asks what happened.</h1>
+<p class="act-sub">Leadership sees the outcome. The analyst's specific valuation methodology and deal reasoning remain sovereign — protected by design, not by policy.</p>
+<div class="data-card summary">
+<div class="card-header">
+<div class="card-name">Executive Summary<span class="sub">UDT-DEAL-2026-IB-0391</span></div>
+<div class="status-pill cyan">For Leadership</div>
+</div>
+<ul class="exec-list">
+<li>Deal qualification reviewed under MNPI protocol</li>
+<li>Material disclosure event identified and cascaded — document access collapsed automatically across all affected deals</li>
+<li>Transaction Steward recusal handled via Safe Harbor — custody unbroken</li>
+<li>Offsite access formally signed, forensic watermark embedded, document token issued and recalled cryptographically</li>
+<li>Discharge complete — Fairness Opinion released, all perimeter instruments resolved</li>
+</ul>
+<div class="powered-by">Stewardship activities: independently verifiable. — Proprietary reasoning: remains private.</div>
+</div>
+${voiceHTML('purple','Purple Coach','SLIM attests only to what is observable: what occurred, who performed it, when it occurred, and who verified it. The analyst\'s specific reasoning — the valuation judgments, the risk assessments, the alternatives considered — remains in the operator\'s private record. Leadership receives independently verifiable evidence of institutional stewardship. Not what parties intended. What they did, and what they certified. Observable stewardship scales. Intent does not.')}
+${controlsHTML(true)}
+</div>
+`;
+}
+
+// ── ACT VII ────────────────────────────────────────────────────────────────
+function sceneAmendment(){
+const amendTs = '2026-07-28 16:42:11 UTC';
+const sealOrig  = 'sha256:f7a8b9c2\u2026f9a0b1c2';
+const sealAmend = 'sha256:a3b7d9e2\u2026c4f1a8b3';
+return `
+<div class="act">
+<div class="act-eyebrow">Act VII — Post-Closing Disclosure</div>
+<h1 class="act-title">New exposure surfaces fourteen days after closing.</h1>
+<p class="act-sub">Matthew Benedict discovers litigation exposure that was unknown at signing. He doesn't need permission to disclose — but the disclosure must be sealed, chained to the original DEC by hash, and every co-signatory must be given the opportunity to contest it.</p>
+<div class="amend-card">
+<div class="amend-label">Amendment Addendum — AAD-2026-IB-0391-01</div>
+<div class="field-grid">
+<div class="field">
+<div class="field-label">Filed By</div>
+<div class="field-value">Matthew Benedict, Partner</div>
+</div>
+<div class="field">
+<div class="field-label">Firm</div>
+<div class="field-value">Kessler Topaz Meltzer &amp; Check</div>
+</div>
+<div class="divider-line"></div>
+<div class="field">
+<div class="field-label">Disclosure Type</div>
+<div class="field-value risk">Litigation Exposure — Securities Class Action</div>
+</div>
+<div class="field">
+<div class="field-label">Discovery Date</div>
+<div class="field-value" style="color:var(--seal-gold)">Jul 28, 2026</div>
+</div>
+<div class="field">
+<div class="field-label">Filed</div>
+<div class="field-value" style="font-family:var(--font-mono);font-size:0.8rem;">${amendTs}</div>
+</div>
+<div class="field">
+<div class="field-label">SLIM Countersign</div>
+<div class="field-value accent">Immediate — Addendum Sealed</div>
+</div>
+</div>
+<div class="amend-chain">
+<div>Original DEC &middot; UDT-DEAL-2026-IB-0391 &middot; <span class="chain-seal">${sealOrig}</span> &middot; <span style="color:#4ADE80">INVIOLATE</span></div>
+<div style="padding-left:1.1rem;color:rgba(255,255,255,0.22);margin-top:0.1rem;">└─ Amendment Addendum &middot; AAD-0391-01 &middot; <span class="chain-ref">ref: sha256:f7a8b9c2&hellip;</span> &middot; <span class="chain-seal">${sealAmend}</span></div>
+</div>
+</div>
+<div class="data-card">
+<div class="card-header">
+<div class="card-name">Response Window<span class="sub">5 Business Days — Notification Issued Jul 28</span></div>
+<div class="status-pill green">● Closed — Uncontested</div>
+</div>
+<div class="holder-grid">
+<div class="holder-row">
+<div>
+<div class="holder-name">Matthew Benedict — Attestation III &middot; Legal</div>
+<div class="holder-role">Filed Addendum &middot; Jul 28, 2026 — 16:42 UTC</div>
+</div>
+<div class="status-pill amber">Filed</div>
+</div>
+<div class="holder-row">
+<div>
+<div class="holder-name">James Wilson — Attestation I &middot; Finance</div>
+<div class="holder-role">Window Opened Jul 28 &middot; Closed Aug 4 &middot; No Contest Filed</div>
+</div>
+<div class="status-pill green">Constructive Notice</div>
+</div>
+<div class="holder-row">
+<div>
+<div class="holder-name">Counterparty Counsel — Attestation Party</div>
+<div class="holder-role">Window Opened Jul 28 &middot; Closed Aug 4 &middot; No Contest Filed</div>
+</div>
+<div class="status-pill green">Constructive Notice</div>
+</div>
+<div class="holder-row">
+<div>
+<div class="holder-name">SLIM — Attestation IV &middot; Binding Authority</div>
+<div class="holder-role">Addendum Countersigned &middot; Sealed into Ledger</div>
+</div>
+<div class="status-pill violet">Sealed</div>
+</div>
+</div>
+<div class="dec-dual">
+<div class="dec-dual-cell">
+<div class="dec-dual-label">Deal Status</div>
+<div class="dec-dual-value green">✓ Discharged</div>
+</div>
+<div class="dec-dual-cell">
+<div class="dec-dual-label">Amendment Status</div>
+<div class="dec-dual-value green">✓ Uncontested — Clean</div>
+</div>
+</div>
+</div>
+${voiceHTML('purple','Purple Coach','Matthew\'s filing authority was unilateral — he carries a disclosure obligation, not a permission request. SLIM countersigned the moment he filed. The original seal is inviolate: what Matthew attested at closing was accurate when he signed. What changed is what he knew. That change is in the ledger now — timestamped, sealed, chained to the original DEC by hash. No new certificate. One record, one addendum, one outcome. Legal remedy belongs to the parties. SLIM closes the information gap.')}
+${voiceHTML('ccb','Golden Steward','Amendment filed. Countersigned. Five business days. No contest received. Constructive notice acknowledged across all holders. The liability window on this disclosure is closed. The ledger is clean.')}
+${controlsHTML(true)}
+</div>
+`;
+}
+
+// ── FINAL SCENE ──────────────────────────────────────────────────────────
+function sceneFinal(){
+const ts    = '2026-07-14 22:33:15 UTC';
+const epoch = 1784068395;
+return `
+<div class="act">
+<div class="act-eyebrow">Deal Evidence Certificate — Four Attestations</div>
+<h1 class="act-title" style="font-size:1.55rem;margin-bottom:0.4rem;">The M&A equivalent of a vital record.</h1>
+<p class="act-sub" style="margin-bottom:1.5rem;">Four parties. One cryptographic seal. Zero disputes. Each authority certifies only the domain they own. The ledger binds all four into an instrument designed to provide independently verifiable evidence for regulatory and audit review. SLIM is not a Virtual Data Room. SLIM is not a document repository. SLIM generates Evidence Instruments — cryptographically sealed records of what responsible parties did, what they attested to, and how institutional stewardship was carried through the lifecycle of a regulated event. Your proprietary deal reasoning never leaves your systems.</p>
+
+<div class="eai-banner">
+<div class="eai-banner-label">Evidence as Infrastructure — EAI</div>
+<div class="eai-banner-text">Not what people thought. What responsible parties did, what they attested to, and how institutional stewardship was carried through the lifecycle of a regulated event. Trust is valuable. Verification is scalable.</div>
+</div>
+
+<div class="cert-wrap">
+<div class="cert">
+<div class="cert-bottom-corners"></div>
+<div class="cert-header">
+<div class="cert-seal">🏛️</div>
+<div class="cert-issuer">Joseph &amp; Margaret Ivy Foundation</div>
+<div class="cert-title">Deal Evidence Certificate</div>
+<div class="cert-subtitle" style="color:#C4B5FD;font-weight:500;">Status: Discharged — Four-Party Attestation Complete</div>
+</div>
+<div class="cert-body">
+
+<!-- ── FOUR ATTESTATIONS ── -->
+<div class="cert-section">
+<div class="cert-section-label">Four Attestations — Co-Signed Closing Instrument</div>
+<div class="attestation-upper">
+<div class="att-block finance">
+<div class="att-pill amber">✓ Signed</div>
+<div class="att-number">Attestation I · Finance</div>
+<div class="att-role">Audit / Finance Lead</div>
+<div class="att-certifies">Certifies the financial baseline, normalized working capital, and adjusted EBITDA quality underlying this transaction.</div>
+<div class="att-sig"><span class="att-sig-label">Authority Signature</span>hmac-sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2</div>
+</div>
+<div class="att-block slim">
+<div class="att-pill violet">✓ Signed</div>
+<div class="att-number">Attestation II · Document Integrity</div>
+<div class="att-role">Data Room Custodian — SLIM</div>
+<div class="att-certifies">Certifies the cryptographic hash of every disclosed document, the complete chain of custody, and the full lifecycle of every access token and offsite record.</div>
+<div class="att-sig"><span class="att-sig-label">Authority Signature</span>hmac-sha256:f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4</div>
+</div>
+<div class="att-block legal">
+<div class="att-pill cyan">✓ Signed</div>
+<div class="att-number">Attestation III · Legal</div>
+<div class="att-role">External Legal Counsel</div>
+<div class="att-certifies">Certifies no undisclosed litigation, indemnity schedules are complete, IP chain of title is verified, and the disclosed universe represents all known legal exposure.</div>
+<div class="att-sig"><span class="att-sig-label">Authority Signature</span>hmac-sha256:9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d</div>
+</div>
+</div>
+<div class="ledger-bind-label">Bound by Cryptographic Ledger</div>
+<div class="att-block ledger">
+<div class="att-ledger-left">
+<div class="att-pill green">Immutable</div>
+<div class="att-number">Attestation IV · Binding Authority</div>
+<div class="att-role">The Cryptographic Ledger</div>
+<div class="att-certifies">Timestamps each of the three attestations above independently. Binds all three under a single SHA-256 seal. Non-repudiable. Cannot be altered after issuance.</div>
+</div>
+<div class="att-ledger-right">
+<div class="att-sig" style="min-width:180px;text-align:left;"><span class="att-sig-label">Ledger Seal</span>sha256:f7a8b9c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0</div>
+</div>
+</div>
+</div>
+
+<div class="cert-divider"></div>
+
+<!-- ── EXECUTIVE SUMMARY ── -->
+<div class="cert-section" style="background:rgba(74,222,128,0.05);border:1px solid rgba(74,222,128,0.25);border-radius:8px;padding:1.25rem;">
+<div class="cert-section-label" style="color:#4ADE80;margin-bottom:0.85rem;">Executive Summary — Deal Evidence</div>
+<div class="cert-field-row">
+<div class="cert-field"><div class="cert-field-label">Transaction Status</div><div class="cert-field-value green">✓ Successfully Discharged</div></div>
+<div class="cert-field"><div class="cert-field-label">Evidence Integrity</div><div class="cert-field-value green">✓ Verified</div></div>
+<div class="cert-field"><div class="cert-field-label">Disclosure Status</div><div class="cert-field-value green">✓ Complete</div></div>
+<div class="cert-field"><div class="cert-field-label">Access Controls</div><div class="cert-field-value green">✓ Revoked</div></div>
+<div class="cert-field"><div class="cert-field-label">MNPI</div><div class="cert-field-value green">✓ Accounted For</div></div>
+<div class="cert-field"><div class="cert-field-label">Evidence Package</div><div class="cert-field-value cyan">🔒 Cryptographically Sealed</div></div>
+</div>
+</div>
+
+<div class="cert-divider"></div>
+
+<!-- ── TRANSACTION REFERENCE ── -->
+<div class="cert-section">
+<div class="cert-section-label">Transaction Reference</div>
+<div class="cert-field-row">
+<div class="cert-field"><div class="cert-field-label">Evidence Package ID</div><div class="cert-field-value mono">UDT-DEAL-2026-IB-0391</div></div>
+<div class="cert-field"><div class="cert-field-label">Transaction Type</div><div class="cert-field-value">Deal Qualification — Fairness Opinion</div></div>
+<div class="cert-field"><div class="cert-field-label">Business Domain</div><div class="cert-field-value">Investment Banking — M&amp;A Advisory</div></div>
+<div class="cert-field"><div class="cert-field-label">Discharge Trigger</div><div class="cert-field-value green">Successful Completion</div></div>
+</div>
+</div>
+
+<div class="cert-divider"></div>
+
+<!-- ── CHAIN OF CUSTODY ── -->
+<div class="cert-section">
+<div class="cert-section-label">Chain of Custody</div>
+<div class="cert-chain">
+<div class="cert-chain-node"><div class="node-name">Sarah Chen</div><div class="node-role">Primary Transaction Steward — VP</div></div>
+<div class="cert-chain-arrow">→</div>
+<div class="cert-chain-node"><div class="node-name">James Wilson</div><div class="node-role">Safe Harbor — Associate Director</div></div>
+<div class="cert-chain-arrow">→</div>
+<div class="cert-chain-node" style="border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.07);"><div class="node-name" style="color:var(--seal-gold);">Discharged</div><div class="node-role">Liability Released</div></div>
+</div>
+</div>
+
+<div class="cert-divider"></div>
+
+<!-- ── LIFECYCLE TIMELINE ── -->
+<div class="cert-section">
+<div class="cert-section-label">Lifecycle Timeline</div>
+<div class="cert-field-row">
+<div class="cert-field"><div class="cert-field-label">Qualification Issued</div><div class="cert-field-value mono">2026-06-01 09:08:14 UTC</div></div>
+<div class="cert-field"><div class="cert-field-label">Safe Harbor Initiated</div><div class="cert-field-value mono">2026-06-04 14:22:07 UTC</div></div>
+<div class="cert-field"><div class="cert-field-label">Certificate Issued</div><div class="cert-field-value mono gold">${ts}</div></div>
+<div class="cert-field"><div class="cert-field-label">Total Duration</div><div class="cert-field-value">7 Days, 2 Hours</div></div>
+</div>
+</div>
+
+<div class="cert-divider"></div>
+
+<!-- ── LIBRARY CARD ── -->
+<div class="cert-section">
+<div class="cert-section-label">Offsite Access — Library Card</div>
+<div class="cert-field-row">
+<div class="cert-field"><div class="cert-field-label">Records Issued</div><div class="cert-field-value">1</div></div>
+<div class="cert-field"><div class="cert-field-label">All Records Resolved</div><div class="cert-field-value green">Yes — MNPI Accounted For</div></div>
+<div class="cert-field"><div class="cert-field-label">Transaction Steward (Offsite)</div><div class="cert-field-value">James Wilson</div></div>
+<div class="cert-field"><div class="cert-field-label">Checkin Status</div><div class="cert-field-value green">On Time — Clean Return</div></div>
+</div>
+</div>
+
+<div class="cert-divider"></div>
+
+<!-- ── DOCUMENT TOKENS ── -->
+<div class="cert-section">
+<div class="cert-section-label">Document Access — Perimeter Tokens</div>
+<div class="cert-field-row">
+<div class="cert-field"><div class="cert-field-label">Tokens Issued</div><div class="cert-field-value">1</div></div>
+<div class="cert-field"><div class="cert-field-label">All Tokens Revoked</div><div class="cert-field-value green">Yes — Automatic</div></div>
+<div class="cert-field"><div class="cert-field-label">Revocation Reason</div><div class="cert-field-value mono">CHECKIN_COMPLETED</div></div>
+<div class="cert-field"><div class="cert-field-label">Perimeter Enforcement</div><div class="cert-field-value cyan">Platform-Agnostic</div></div>
+</div>
+</div>
+
+<div class="cert-divider"></div>
+
+<!-- ── WATERMARKS ── -->
+<div class="cert-section">
+<div class="cert-section-label">Visual Forensic Watermarks</div>
+<div class="cert-field-row">
+<div class="cert-field"><div class="cert-field-label">Watermarks Issued</div><div class="cert-field-value">1</div></div>
+<div class="cert-field"><div class="cert-field-label">Attribution Coverage</div><div class="cert-field-value green">Active — Permanently Embedded</div></div>
+<div class="cert-field"><div class="cert-field-label">Watermark ID</div><div class="cert-field-value mono">wmk_9f8e7d6c5b4a3b2c</div></div>
+<div class="cert-field"><div class="cert-field-label">Maps to Record</div><div class="cert-field-value mono">OAR-2026-0041</div></div>
+</div>
+</div>
+
+<div class="cert-divider"></div>
+
+<!-- ── TECHNICAL INTEGRITY ── -->
+<div class="cert-section">
+<div class="cert-section-label">Technical Integrity</div>
+<div class="cert-field-row" style="margin-bottom:1rem;">
+<div class="cert-field"><div class="cert-field-label">Certificate Issued</div><div class="cert-field-value mono gold">${ts}</div></div>
+<div class="cert-field"><div class="cert-field-label">Certificate Version</div><div class="cert-field-value mono">v1.4.0-SLIM</div></div>
+<div class="cert-field"><div class="cert-field-label">Four-Party Attestation</div><div class="cert-field-value green">Complete — All Signatories Co-Signed</div></div>
+<div class="cert-field"><div class="cert-field-label">ZPCB Verification</div><div class="cert-field-value green">Zero-Persistence Confirmed</div></div>
+<div class="cert-field"><div class="cert-field-label">Foundation Signature</div><div class="cert-field-value cyan">Valid — JMIF</div></div>
+</div>
+<div class="cert-field-label">SHA-256 Evidence Seal</div>
+<div class="cert-hash" style="margin-bottom:1rem;">sha256:f7a8b9c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4&nbsp;&nbsp;//&nbsp;&nbsp;epoch:${epoch}</div>
+<div class="cert-field-label">Verification Endpoint</div>
+<div class="cert-field-value mono" style="font-size:0.75rem;color:var(--muted);word-break:break-all;">https://foundation.slim-api.com/verify/UDT-DEAL-2026-IB-0391</div>
+</div>
+
+<div class="cert-divider"></div>
+
+<!-- ── REVIEWER UTILITY ── -->
+<div class="cert-section">
+<div class="cert-section-label">Deal Evidence Certificate — Reviewer Utility</div>
+<div class="reviewer-grid">
+<div class="reviewer-panel rp-lawyers">
+<div class="reviewer-panel-lbl">For Lawyers</div>
+<div class="rp-item">Legal attestation scope — what counsel certified, nothing beyond</div>
+<div class="rp-item">Complete disclosure universe with non-repudiable timestamps</div>
+<div class="rp-item">Amendment chain — each post-closing disclosure chained by hash to the original DEC</div>
+<div class="rp-item">Filing authority vs. binding authority — constitutionally separated</div>
+<div class="rp-item">Independently verifiable without contacting any party</div>
+</div>
+<div class="reviewer-panel rp-boards">
+<div class="reviewer-panel-lbl">For Boards</div>
+<div class="rp-item">Named stewards — who held custody at every moment in the lifecycle</div>
+<div class="rp-item">Stewardship activities performed — not reasoning, observable actions</div>
+<div class="rp-item">Each party's attestation scope — no one certifying another's domain</div>
+<div class="rp-item">All Library Cards returned, all access tokens revoked on record</div>
+<div class="rp-item">Clean discharge status with four-party co-signature</div>
+</div>
+<div class="reviewer-panel rp-future">
+<div class="reviewer-panel-lbl">For Future Reviewers</div>
+<div class="rp-item">SHA-256 seal — independently verifiable at a public, unauthenticated endpoint</div>
+<div class="rp-item">Complete lifecycle reconstruction from obligation to discharge</div>
+<div class="rp-item">Amendment history chained to original DEC by hash — original seal stays inviolate</div>
+<div class="rp-item">Every document access, every custody transfer, every token — timestamped</div>
+<div class="rp-item">No deal data exposed by the verification endpoint</div>
+</div>
+</div>
+</div>
+
+<div class="cert-divider"></div>
+
+<!-- ── STEWARDSHIP ACTION LOG ── -->
+<div class="cert-section">
+<div class="cert-section-label">Stewardship Action Log — What Occurred · Who · When · Verified By</div>
+<div class="action-log">
+<div class="al-header">
+<div class="al-col">Action</div>
+<div class="al-col">Responsible Party</div>
+<div class="al-col">Timestamp (UTC)</div>
+<div class="al-col">Verified By</div>
+</div>
+<div class="al-row"><div class="al-action">Custody accepted — MNPI obligation initiated</div><div class="al-who">Sarah Chen, VP</div><div class="al-when">Jun 1 · 09:08</div><div class="al-by">SLIM Ledger</div></div>
+<div class="al-row"><div class="al-action">Restatement cascade — 7 obligations flagged</div><div class="al-who">Automatic</div><div class="al-when">Jun 1 · 11:32</div><div class="al-by">SLIM Ledger</div></div>
+<div class="al-row"><div class="al-action">7 document access tokens recalled</div><div class="al-who">Automatic</div><div class="al-when">Jun 1 · 11:32</div><div class="al-by">SLIM Ledger</div></div>
+<div class="al-row"><div class="al-action">Safe Harbor transfer — custody accepted</div><div class="al-who">James Wilson, Assoc. Dir.</div><div class="al-when">Jun 4 · 14:22</div><div class="al-by">SLIM Ledger</div></div>
+<div class="al-row"><div class="al-action">Offsite checkout — Library Card OAR-2026-0041 issued</div><div class="al-who">James Wilson</div><div class="al-when">Jun 6 · 18:30</div><div class="al-by">Steward Signature</div></div>
+<div class="al-row"><div class="al-action">Forensic watermark embedded — imperceptible, permanent</div><div class="al-who">SLIM</div><div class="al-when">Jun 6 · 18:30</div><div class="al-by">SLIM Ledger</div></div>
+<div class="al-row"><div class="al-action">Document Access Token issued — perimeter enforced</div><div class="al-who">SLIM</div><div class="al-when">Jun 6 · 18:30</div><div class="al-by">SLIM Ledger</div></div>
+<div class="al-row"><div class="al-action">Offsite checkin — on time, clean return</div><div class="al-who">James Wilson</div><div class="al-when">Jun 8 · 09:14</div><div class="al-by">Steward Signature</div></div>
+<div class="al-row"><div class="al-action">DAT revoked — CHECKIN_COMPLETED, automatic</div><div class="al-who">Automatic</div><div class="al-when">Jun 8 · 09:14</div><div class="al-by">SLIM Ledger</div></div>
+<div class="al-row"><div class="al-action">Fairness opinion released — discharge triggered</div><div class="al-who">Finance Lead</div><div class="al-when">Jun 14 · 19:45</div><div class="al-by">SLIM Ledger</div></div>
+<div class="al-row"><div class="al-action">Deal Evidence Certificate issued — four-party seal</div><div class="al-who">SLIM Ledger</div><div class="al-when">Jul 14 · 22:33</div><div class="al-by">Cryptographic Seal</div></div>
+<div class="al-row"><div class="al-action">Amendment filed — post-closing litigation exposure</div><div class="al-who">Matthew Benedict, Esq.</div><div class="al-when">Jul 28 · 16:42</div><div class="al-by">SLIM Countersign</div></div>
+<div class="al-row"><div class="al-action">Response window closed — uncontested, clean</div><div class="al-who">SLIM Ledger</div><div class="al-when">Aug 4 · 16:42</div><div class="al-by">Cryptographic Seal</div></div>
+</div>
+</div>
+
+</div>
+<div class="cert-footer">
+<div class="cert-footer-status"><div class="dot"></div>Four-Party Attestation — Certificate Valid</div>
+<a class="cert-verify-link" href="https://foundation.slim-api.com/verify/UDT-DEAL-2026-IB-0391" target="_blank">foundation.slim-api.com/verify/UDT-DEAL-2026-IB-0391 ↗</a>
+</div>
+</div>
+</div>
+
+${voiceHTML('purple','Purple Coach','Trust is valuable. Verification is scalable. SLIM reduces the amount of trust required by increasing independently verifiable evidence. If you were designing a DEC for transactions you worked on, this is what would make it useful to a lawyer, a board, or a future reviewer: not what management believed — what responsible parties did. What they attested to. When. Who verified it. Four parties signed this instrument — each certifying only the domain they own. Finance attested to financial stewardship. SLIM attested to evidence integrity. Legal counsel attested to legal stewardship. The ledger bound all three. No party certified another party\'s responsibilities. The certificate binds them together. You don\'t dispute a vital record. When four authorities co-sign the same cryptographic instrument — each for the domain only they can certify — the liability closes the way your grandfather closed a life: completely, irreversibly, with a seal the state accepts. Nothing proprietary left your systems.')}
+
+<div class="end-of-watch">
+<div class="ccb-glyph">🌟</div>
+<div class="end-of-watch-text">
+<div class="end-of-watch-name">Golden Steward</div>
+<div class="end-of-watch-line">"Four attestations. One seal. Finance signed. SLIM signed. Counsel signed. The ledger bound it. The deal file came home clean, and the liability is closed. You cannot dispute a vital record. End of watch."</div>
+</div>
+</div>
+
+<div class="att-defs">
+<div class="att-def"><div class="att-def-label">Legal Attestation</div><div class="att-def-desc">Attests only to legal stewardship.</div></div>
+<div class="att-def"><div class="att-def-label">Financial Attestation</div><div class="att-def-desc">Attests only to financial stewardship.</div></div>
+<div class="att-def"><div class="att-def-label">Counterparty Attestation</div><div class="att-def-desc">Attests only to their participation.</div></div>
+<div class="att-def"><div class="att-def-label">Integrity Attestation (SLIM)</div><div class="att-def-desc">Attests only to evidence integrity.</div></div>
+</div>
+
+<div class="controls" style="justify-content:center;">
+<button class="btn-restart" id="btnRestart">Watch Again</button>
+</div>
+</div>
+`;
+}
+
+// ── RENDER ENGINE ──────────────────────────────────────────────────────────
+const sceneRenderers = [
+  sceneObligation,
+  sceneBoundary,
+  sceneMemory,
+  sceneHarbor,
+  sceneLibraryCard,
+  sceneManagement,
+  sceneAmendment
+];
+
+function render(){
+  renderProgress();
+  if (current < acts.length){
+    stage.innerHTML = sceneRenderers[current]();
+    const back = document.getElementById('btnBack');
+    const next = document.getElementById('btnNext');
+    if (back) back.addEventListener('click', () => { current = Math.max(0, current - 1); render(); });
+    if (next) next.addEventListener('click', () => { current += 1; render(); });
+  } else {
+    stage.innerHTML = sceneFinal();
+    const restart = document.getElementById('btnRestart');
+    if (restart) restart.addEventListener('click', () => { current = 0; render(); });
   }
+}
 
-  function voiceHTML(agent, name, line){
-    const icon = agent === 'purple' ? '🟣' : '🌟';
-    return `<div class="voice ${agent}">
-      <div class="voice-icon">${icon}</div>
-      <div class="voice-body">
-        <div class="voice-name">${name}</div>
-        <div class="voice-line">"${line}"</div>
-      </div>
-    </div>`;
-  }
-
-  function controlsHTML(showBack){
-    return `<div class="controls">
-      <button class="btn-back" id="btnBack" ${showBack ? '' : 'disabled'}>← Back</button>
-      <button class="btn-continue" id="btnNext">Continue</button>
-    </div>`;
-  }
-
-  // ─── ACT I ───────────────────────────────────────────────────────
-  function sceneObligation(){
-    return `
-      <div class="act">
-        <div class="act-eyebrow">Act I — The Obligation</div>
-        <h1 class="act-title">Something requires stewardship.</h1>
-        <p class="act-sub">Every consequential decision begins the same way — someone accepts custody of material non-public information.</p>
-
-        <div class="data-card">
-          <div class="card-header">
-            <div class="card-name">Deal Qualification — Project Atlas<span class="sub">UDT-DEAL-2026-IB-0391</span></div>
-            <div class="status-pill green">● Active</div>
-          </div>
-          <div class="field-grid">
-            <div class="field">
-              <div class="field-label">Primary Transaction Steward</div>
-              <div class="field-value">Sarah Chen, VP — M&amp;A Advisory</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Risk Classification</div>
-              <div class="field-value risk">MNPI — Material Non-Public</div>
-            </div>
-            <div class="divider-line"></div>
-            <div class="field">
-              <div class="field-label">Domain</div>
-              <div class="field-value">Investment Banking — M&amp;A Advisory</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Next Milestone</div>
-              <div class="field-value">Fairness Opinion Review</div>
-            </div>
-          </div>
-        </div>
-
-        ${voiceHTML('purple','Purple Coach','Every obligation involving material non-public information requires a named, accountable transaction steward. Sarah has accepted custody. The record begins here — sealed, timestamped, and non-repudiable.')}
-
-        ${controlsHTML(false)}
-      </div>
-    `;
-  }
-
-  // ─── ACT II ──────────────────────────────────────────────────────
-  function sceneBoundary(){
-    return `
-      <div class="act">
-        <div class="act-eyebrow">Act II — Trust Boundary Crossed</div>
-        <h1 class="act-title">Something goes wrong.</h1>
-        <p class="act-sub">The target company's auditor issues a material financial restatement. Every deal instrument built on those financials is compromised — automatically identified, and every document access token across all affected deals is recalled immediately.</p>
-
-        <div class="data-card alert">
-          <div class="card-header">
-            <div class="card-name">Counterparty Disclosure<span class="sub">Financial Restatement Issued</span></div>
-            <div class="status-pill red">Cascade Detected</div>
-          </div>
-          <div class="field-grid">
-            <div class="field">
-              <div class="field-label">Halted at Source</div>
-              <div class="field-value big risk">1</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Flagged for Review</div>
-              <div class="field-value big" style="color:var(--seal-gold)">7</div>
-            </div>
-            <div class="divider-line"></div>
-            <div class="field">
-              <div class="field-label">Pending Mandates at Risk</div>
-              <div class="field-value">3 Active Mandates</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Detection</div>
-              <div class="field-value accent">Automatic — no manual audit required</div>
-            </div>
-            <div class="divider-line"></div>
-            <div class="field">
-              <div class="field-label">Document Tokens Recalled</div>
-              <div class="field-value accent">7 — Automatic</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Perimeter</div>
-              <div class="field-value accent">Document access collapsed at cascade</div>
-            </div>
-          </div>
-        </div>
-
-        ${voiceHTML('purple','Purple Coach','A trust boundary has been crossed. Every deal instrument that depended on these financials has been identified — not by a compliance officer searching manually, but by the ledger itself. Document access tokens across all seven flagged obligations were revoked the instant the cascade fired.')}
-        ${voiceHTML('ccb','Golden Steward','One halted clean at source. Seven downstream obligations flagged. Seven tokens recalled in the same second the cascade fired — automatic, no manual intervention. Nothing slips through quiet.')}
-
-        ${controlsHTML(true)}
-      </div>
-    `;
-  }
-
-  // ─── ACT III ─────────────────────────────────────────────────────
-  function sceneMemory(){
-    return `
-      <div class="act">
-        <div class="act-eyebrow">Act III — Institutional Memory</div>
-        <h1 class="act-title">Has this happened before?</h1>
-        <p class="act-sub">Purple becomes valuable here — not because it predicts, but because it remembers every material disclosure event that already closed.</p>
-
-        <div class="data-card memory">
-          <div class="card-header">
-            <div class="card-name">Institutional Memory<span class="sub">Material Disclosure Event — M&amp;A Advisory</span></div>
-            <div class="status-pill violet">247 Cases</div>
-          </div>
-          <div class="field-grid">
-            <div class="field">
-              <div class="field-label">Similar Cases</div>
-              <div class="field-value big">247</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Typical Resolution</div>
-              <div class="field-value big">2 Days</div>
-            </div>
-            <div class="divider-line"></div>
-            <div class="field">
-              <div class="field-label">Historical Risk Rate</div>
-              <div class="field-value accent">4.1%</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Recurring Pattern</div>
-              <div class="field-value">Independent valuation before revised fairness opinion</div>
-            </div>
-          </div>
-        </div>
-
-        ${voiceHTML('purple','Purple Coach','Institutional Memory found 247 similar material disclosure events. Nothing here is a forecast — it is a record of what already happened, and what resolved cleanly.')}
-
-        ${controlsHTML(true)}
-      </div>
-    `;
-  }
-
-  // ─── ACT IV ──────────────────────────────────────────────────────
-  function sceneHarbor(){
-    return `
-      <div class="act">
-        <div class="act-eyebrow">Act IV — Safe Harbor Transfer</div>
-        <h1 class="act-title">The transaction steward must recuse.</h1>
-        <p class="act-sub">Sarah discovers a potential conflict of interest mid-deal. The obligation cannot sit unowned. A qualified transaction steward accepts custody — after reviewing the full deal history.</p>
-
-        <div class="data-card harbor">
-          <div class="card-header">
-            <div class="card-name">Primary Transaction Steward<span class="sub">Sarah Chen — Recusal Required</span></div>
-            <div class="status-pill amber">Unavailable</div>
-          </div>
-          <div class="field-grid">
-            <div class="field">
-              <div class="field-label">Safe Harbor</div>
-              <div class="field-value" style="color:var(--seal-gold)">Transfer Required</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Incoming Transaction Steward</div>
-              <div class="field-value">James Wilson, Associate Director</div>
-            </div>
-            <div class="divider-line"></div>
-            <div class="field">
-              <div class="field-label">Authority Check</div>
-              <div class="field-value accent">Verified — Departmental Clearance</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Pre-Deal Briefing</div>
-              <div class="field-value">Full deal history reviewed before custody accepted</div>
-            </div>
-          </div>
-        </div>
-
-        ${voiceHTML('ccb','Golden Steward','No Transaction Steward is left holding MNPI without a documented custodian. One click, and custody transfers seamlessly.')}
-        ${voiceHTML('purple','Purple Coach','James has reviewed the full history of this obligation before accepting it. The chain of custody is unbroken. The deal can continue.')}
-
-        ${controlsHTML(true)}
-      </div>
-    `;
-  }
-
-  // ─── ACT V ───────────────────────────────────────────────────────
-  function sceneLibraryCard(){
-    return `
-      <div class="act">
-        <div class="act-eyebrow">Act V — Library Card + Watermark + Document Perimeter</div>
-        <h1 class="act-title">The deal file leaves the building.</h1>
-        <p class="act-sub">James takes the deal memorandum home over the weekend. SLIM creates three instruments simultaneously: a transaction steward-signed custody record, a forensic watermark embedded imperceptibly into the document's visual canvas, and a cryptographic access token any document server can verify before serving the file.</p>
-
-        <div class="lib-card">
-          <div class="lib-card-header">
-            <div class="lib-card-title">
-              Offsite Access Record
-              <span class="sub">OAR-2026-0041 // Library Card</span>
-            </div>
-            <div class="status-pill green">● Checked In</div>
-          </div>
-
-          <div class="lib-timeline">
-            <div class="lib-event">
-              <div class="lib-event-label">Checkout</div>
-              <div class="lib-event-value gold">Fri Jun 6 — 18:30</div>
-              <div class="lib-event-label" style="margin-top:0.25rem;">James Wilson</div>
-            </div>
-            <div class="lib-event">
-              <div class="lib-event-label">Location</div>
-              <div class="lib-event-value">Home office<br>New York, NY</div>
-            </div>
-            <div class="lib-event">
-              <div class="lib-event-label">Authorized</div>
-              <div class="lib-event-value">48 hours</div>
-            </div>
-            <div class="lib-event">
-              <div class="lib-event-label">Checkin</div>
-              <div class="lib-event-value green">Sun Jun 8 — 09:14</div>
-              <div class="lib-event-label" style="margin-top:0.25rem;">On time — clean</div>
-            </div>
-          </div>
-
-          <div class="lib-sig">
-            <span class="sig-label">Transaction Steward Signature (Checkout)</span>
-            hmac-sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2
-          </div>
-          <div class="lib-sig" style="margin-top:0.5rem;">
-            <span class="sig-label">Transaction Steward Signature (Checkin)</span>
-            hmac-sha256:f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4
-          </div>
-        </div>
-
-        <div class="wmk-card">
-          <div class="wmk-header">
-            <div class="wmk-title">
-              Visual Forensic Watermark
-              <span class="sub">wmk_9f8e7d6c5b4a3b2c // Leak Attribution Instrument</span>
-            </div>
-            <div class="status-pill violet">● Embedded</div>
-          </div>
-
-          <div class="field-grid">
-            <div class="field">
-              <div class="field-label">Encoded: Transaction Steward</div>
-              <div class="field-value">James Wilson</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Encoded: Timestamp</div>
-              <div class="field-value" style="color:var(--seal-gold)">Fri Jun 6 — 18:30</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Encoded: Device</div>
-              <div class="field-value">Endpoint fingerprint</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Visible to Human Eye</div>
-              <div class="field-value" style="color:#4ADE80">No — Imperceptible</div>
-            </div>
-          </div>
-
-          <div class="wmk-token-block">
-            <span class="wmk-token-label">Watermark ID — Maps to Offsite Record OAR-2026-0041</span>
-            <div class="wmk-token-value">wmk_9f8e7d6c5b4a3b2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8</div>
-          </div>
-
-          <div class="wmk-tagline">
-            "The watermark does not prevent a leak. It converts one into evidence." — If this document surfaces anywhere it should not — including a photograph taken with a phone camera — forensic extraction returns this token. It maps back to this transaction steward, this timestamp, this deal. The record was made at checkout, before anything went wrong.
-          </div>
-        </div>
-
-        <div class="dat-card">
-          <div class="dat-header">
-            <div class="dat-title">
-              Document Access Token
-              <span class="sub">dat_f7a8b9c0d1e2f3a4 // Perimeter Instrument</span>
-            </div>
-            <div class="status-pill green">● Revoked — Clean</div>
-          </div>
-
-          <div class="field-grid">
-            <div class="field">
-              <div class="field-label">Issued at Checkout</div>
-              <div class="field-value" style="color:var(--seal-gold)">Fri Jun 6 — 18:30</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Revoked at Checkin</div>
-              <div class="field-value" style="color:#4ADE80">Sun Jun 8 — 09:14</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Revocation Trigger</div>
-              <div class="field-value accent">CHECKIN_COMPLETED — Automatic</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Works With</div>
-              <div class="field-value">SharePoint · S3 · iManage · Any DMS</div>
-            </div>
-          </div>
-
-          <div class="dat-verify-block">
-            <span class="dat-verify-label">Verify Endpoint — Public · Unauthenticated · No Deal Data Exposed</span>
-            <div class="dat-verify-url">
-              GET slim.api/v1/document-access-token/verify/dat_f7a8b9c0d1e2f3a4
-              <span class="response">→ {"valid": false, "reason": "REVOKED"}</span>
-            </div>
-          </div>
-
-          <div class="dat-tagline">
-            "The perimeter is the protocol, not the platform." — Any document server checks this URL before serving the file. SLIM answers valid or revoked. The document server enforces it.
-          </div>
-        </div>
-
-        ${voiceHTML('purple','Purple Coach','James signed for the obligation when he took it offsite, and signed again when he returned it. At checkout, SLIM simultaneously issued a Document Access Token and embedded a forensic watermark into the document\'s visual canvas — encoding James\'s identity, the checkout timestamp, and device telemetry, imperceptibly. The instant James checked in, the token was revoked automatically. If this document ever surfaces somewhere it should not — including a photograph taken with a phone camera — the watermark maps it back to this exact checkout record. This is what matters in discovery.')}
-        ${voiceHTML('ccb','Golden Steward','Card issued Friday. Watermark embedded — imperceptible, permanent. DAT active. Card returned Sunday — on time and clean. DAT revoked automatically. Three instruments. One clean deal. Excellent adherence to protocol by the Transaction Steward.')}
-
-        ${controlsHTML(true)}
-      </div>
-    `;
-  }
-
-  // ─── ACT VI ──────────────────────────────────────────────────────
-  function sceneManagement(){
-    return `
-      <div class="act">
-        <div class="act-eyebrow">Act VI — Management Boundary</div>
-        <h1 class="act-title">The Managing Director asks what happened.</h1>
-        <p class="act-sub">Leadership sees the outcome. The analyst's specific valuation methodology and deal reasoning remain sovereign — protected by design, not by policy.</p>
-
-        <div class="data-card summary">
-          <div class="card-header">
-            <div class="card-name">Executive Summary<span class="sub">UDT-DEAL-2026-IB-0391</span></div>
-            <div class="status-pill cyan">For Leadership</div>
-          </div>
-          <ul class="exec-list">
-            <li>Deal qualification reviewed under MNPI protocol</li>
-            <li>Material disclosure event identified and cascaded — document access collapsed automatically across all affected deals</li>
-            <li>Transaction Steward recusal handled via Safe Harbor — custody unbroken</li>
-            <li>Offsite access formally signed, forensic watermark embedded, document token issued and recalled cryptographically</li>
-            <li>Discharge complete — Fairness Opinion released, all perimeter instruments resolved</li>
-          </ul>
-          <div class="powered-by">Powered by the Sovereign Rationale Shield</div>
-        </div>
-
-        ${voiceHTML('purple','Purple Coach','The Managing Director sees that every obligation was met and every transfer was clean. The analyst\'s specific reasoning — the valuation judgments, the risk assessments, the alternatives considered — remains in the operator\'s private record. Leadership is informed. The transaction steward\'s intellectual work stays protected.')}
-
-        ${controlsHTML(true)}
-      </div>
-    `;
-  }
-
-  // ─── ACT VII ─────────────────────────────────────────────────────
-  function sceneAmendment(){
-    const amendTs   = '2026-07-28 16:42:11 UTC';
-    const sealOrig  = 'sha256:f7a8b9c2\u2026f9a0b1c2';
-    const sealAmend = 'sha256:a3b7d9e2\u2026c4f1a8b3';
-
-    return `
-      <div class="act">
-        <div class="act-eyebrow">Act VII — Post-Closing Disclosure</div>
-        <h1 class="act-title">New exposure surfaces fourteen days after closing.</h1>
-        <p class="act-sub">Matthew Benedict discovers litigation exposure that was unknown at signing. He doesn't need permission to disclose — but the disclosure must be sealed, chained to the original DEC by hash, and every co-signatory must be given the opportunity to contest it.</p>
-
-        <div class="amend-card">
-          <div class="amend-label">Amendment Addendum — AAD-2026-IB-0391-01</div>
-          <div class="field-grid">
-            <div class="field">
-              <div class="field-label">Filed By</div>
-              <div class="field-value">Matthew Benedict, Partner</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Firm</div>
-              <div class="field-value">Kessler Topaz Meltzer &amp; Check</div>
-            </div>
-            <div class="divider-line"></div>
-            <div class="field">
-              <div class="field-label">Disclosure Type</div>
-              <div class="field-value risk">Litigation Exposure — Securities Class Action</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Discovery Date</div>
-              <div class="field-value" style="color:var(--seal-gold)">Jul 28, 2026</div>
-            </div>
-            <div class="field">
-              <div class="field-label">Filed</div>
-              <div class="field-value" style="font-family:var(--font-mono);font-size:0.8rem;">${amendTs}</div>
-            </div>
-            <div class="field">
-              <div class="field-label">SLIM Countersign</div>
-              <div class="field-value accent">Immediate — Addendum Sealed</div>
-            </div>
-          </div>
-
-          <div class="amend-chain">
-            <div>Original DEC &middot; UDT-DEAL-2026-IB-0391 &middot; <span class="chain-seal">${sealOrig}</span> &middot; <span style="color:#4ADE80">INVIOLATE</span></div>
-            <div style="padding-left:1.1rem;color:rgba(255,255,255,0.22);margin-top:0.1rem;">└─ Amendment Addendum &middot; AAD-0391-01 &middot; <span class="chain-ref">ref: sha256:f7a8b9c2&hellip;</span> &middot; <span class="chain-seal">${sealAmend}</span></div>
-          </div>
-        </div>
-
-        <div class="data-card">
-          <div class="card-header">
-            <div class="card-name">Response Window<span class="sub">5 Business Days — Notification Issued Jul 28</span></div>
-            <div class="status-pill green">● Closed — Uncontested</div>
-          </div>
-
-          <div class="holder-grid">
-            <div class="holder-row">
-              <div>
-                <div class="holder-name">Matthew Benedict — Attestation III &middot; Legal</div>
-                <div class="holder-role">Filed Addendum &middot; Jul 28, 2026 — 16:42 UTC</div>
-              </div>
-              <div class="status-pill amber">Filed</div>
-            </div>
-            <div class="holder-row">
-              <div>
-                <div class="holder-name">James Wilson — Attestation I &middot; Finance</div>
-                <div class="holder-role">Window Opened Jul 28 &middot; Closed Aug 4 &middot; No Contest Filed</div>
-              </div>
-              <div class="status-pill green">Constructive Notice</div>
-            </div>
-            <div class="holder-row">
-              <div>
-                <div class="holder-name">Counterparty Counsel — Attestation Party</div>
-                <div class="holder-role">Window Opened Jul 28 &middot; Closed Aug 4 &middot; No Contest Filed</div>
-              </div>
-              <div class="status-pill green">Constructive Notice</div>
-            </div>
-            <div class="holder-row">
-              <div>
-                <div class="holder-name">SLIM — Attestation IV &middot; Binding Authority</div>
-                <div class="holder-role">Addendum Countersigned &middot; Sealed into Ledger</div>
-              </div>
-              <div class="status-pill violet">Sealed</div>
-            </div>
-          </div>
-
-          <div class="dec-dual">
-            <div class="dec-dual-cell">
-              <div class="dec-dual-label">Deal Status</div>
-              <div class="dec-dual-value green">✓ Discharged</div>
-            </div>
-            <div class="dec-dual-cell">
-              <div class="dec-dual-label">Amendment Status</div>
-              <div class="dec-dual-value green">✓ Uncontested — Clean</div>
-            </div>
-          </div>
-        </div>
-
-        ${voiceHTML('purple','Purple Coach','Matthew\'s filing authority was unilateral — he carries a disclosure obligation, not a permission request. SLIM countersigned the moment he filed. The original seal is inviolate: what Matthew attested at closing was accurate when he signed. What changed is what he knew. That change is in the ledger now — timestamped, sealed, chained to the original DEC by hash. No new certificate. One record, one addendum, one outcome. Legal remedy belongs to the parties. SLIM closes the information gap.')}
-        ${voiceHTML('ccb','Golden Steward','Amendment filed. Countersigned. Five business days. No contest received. Constructive notice acknowledged across all holders. The liability window on this disclosure is closed. The ledger is clean.')}
-
-        ${controlsHTML(true)}
-      </div>
-    `;
-  }
-
-  // ─── FINAL SCENE ─────────────────────────────────────────────────
-  function sceneFinal(){
-    const ts    = '2026-07-14 22:33:15 UTC';
-    const epoch = 1784068395;
-
-    return `
-      <div class="act">
-        <div class="act-eyebrow">Deal Evidence Certificate — Four Attestations</div>
-        <h1 class="act-title" style="font-size:1.55rem; margin-bottom:0.4rem;">The M&A equivalent of a vital record.</h1>
-        <p class="act-sub" style="margin-bottom:1.5rem;">Four parties. One cryptographic seal. Zero disputes. Each authority certifies only the domain they own. The ledger binds all four into an instrument designed to provide independently verifiable evidence for regulatory and audit review. — Additionally, your proprietary deal reasoning never leaves your systems.</p>
-
-        <div class="cert-wrap">
-          <div class="cert">
-            <div class="cert-bottom-corners"></div>
-
-            <div class="cert-header">
-              <div class="cert-seal">🏛️</div>
-              <div class="cert-issuer">Joseph &amp; Margaret Ivy Foundation</div>
-              <div class="cert-title">Deal Evidence Certificate</div>
-              <div class="cert-subtitle" style="color:#C4B5FD; font-weight:500;">Status: Discharged — Four-Party Attestation Complete</div>
-            </div>
-
-            <div class="cert-body">
-
-              <!-- ── FOUR ATTESTATIONS ── -->
-              <div class="cert-section">
-                <div class="cert-section-label">Four Attestations — Co-Signed Closing Instrument</div>
-
-                <div class="attestation-upper">
-
-                  <div class="att-block finance">
-                    <div class="att-pill amber">✓ Signed</div>
-                    <div class="att-number">Attestation I · Finance</div>
-                    <div class="att-role">Audit / Finance Lead</div>
-                    <div class="att-certifies">Certifies the financial baseline, normalized working capital, and adjusted EBITDA quality underlying this transaction.</div>
-                    <div class="att-sig">
-                      <span class="att-sig-label">Authority Signature</span>
-                      hmac-sha256:a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2
-                    </div>
-                  </div>
-
-                  <div class="att-block slim">
-                    <div class="att-pill violet">✓ Signed</div>
-                    <div class="att-number">Attestation II · Document Integrity</div>
-                    <div class="att-role">Data Room Custodian — SLIM</div>
-                    <div class="att-certifies">Certifies the cryptographic hash of every disclosed document, the complete chain of custody, and the full lifecycle of every access token and offsite record.</div>
-                    <div class="att-sig">
-                      <span class="att-sig-label">Authority Signature</span>
-                      hmac-sha256:f5e4d3c2b1a0f9e8d7c6b5a4f3e2d1c0b9a8f7e6d5c4b3a2f1e0d9c8b7a6f5e4
-                    </div>
-                  </div>
-
-                  <div class="att-block legal">
-                    <div class="att-pill cyan">✓ Signed</div>
-                    <div class="att-number">Attestation III · Legal</div>
-                    <div class="att-role">External Legal Counsel</div>
-                    <div class="att-certifies">Certifies no undisclosed litigation, indemnity schedules are complete, IP chain of title is verified, and the disclosed universe represents all known legal exposure.</div>
-                    <div class="att-sig">
-                      <span class="att-sig-label">Authority Signature</span>
-                      hmac-sha256:9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d
-                    </div>
-                  </div>
-
-                </div>
-
-                <!-- Binding label between upper three and ledger -->
-                <div class="ledger-bind-label">Bound by Cryptographic Ledger</div>
-
-                <!-- Ledger — full width binding block -->
-                <div class="att-block ledger">
-                  <div class="att-ledger-left">
-                    <div class="att-pill green">Immutable</div>
-                    <div class="att-number">Attestation IV · Binding Authority</div>
-                    <div class="att-role">The Cryptographic Ledger</div>
-                    <div class="att-certifies">Timestamps each of the three attestations above independently. Binds all three under a single SHA-256 seal. Non-repudiable. Cannot be altered after issuance.</div>
-                  </div>
-                  <div class="att-ledger-right">
-                    <div class="att-sig" style="min-width:180px; text-align:left;">
-                      <span class="att-sig-label">Ledger Seal</span>
-                      sha256:f7a8b9c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              <div class="cert-divider"></div>
-
-              <!-- ── EXECUTIVE SUMMARY ── -->
-              <div class="cert-section" style="background: rgba(74,222,128,0.05); border: 1px solid rgba(74,222,128,0.25); border-radius: 8px; padding: 1.25rem;">
-                <div class="cert-section-label" style="color: #4ADE80; margin-bottom: 0.85rem;">Executive Summary — Deal Evidence</div>
-                <div class="cert-field-row">
-                  <div class="cert-field">
-                    <div class="cert-field-label">Transaction Status</div>
-                    <div class="cert-field-value green">✓ Successfully Discharged</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Evidence Integrity</div>
-                    <div class="cert-field-value green">✓ Verified</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Disclosure Status</div>
-                    <div class="cert-field-value green">✓ Complete</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Access Controls</div>
-                    <div class="cert-field-value green">✓ Revoked</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">MNPI</div>
-                    <div class="cert-field-value green">✓ Accounted For</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Evidence Package</div>
-                    <div class="cert-field-value cyan">🔒 Cryptographically Sealed</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="cert-divider"></div>
-
-              <!-- ── TRANSACTION REFERENCE ── -->
-              <div class="cert-section">
-                <div class="cert-section-label">Transaction Reference</div>
-                <div class="cert-field-row">
-                  <div class="cert-field">
-                    <div class="cert-field-label">Evidence Package ID</div>
-                    <div class="cert-field-value mono">UDT-DEAL-2026-IB-0391</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Transaction Type</div>
-                    <div class="cert-field-value">Deal Qualification — Fairness Opinion</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Business Domain</div>
-                    <div class="cert-field-value">Investment Banking — M&amp;A Advisory</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Discharge Trigger</div>
-                    <div class="cert-field-value green">Successful Completion</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="cert-divider"></div>
-
-              <!-- ── CHAIN OF CUSTODY ── -->
-              <div class="cert-section">
-                <div class="cert-section-label">Chain of Custody</div>
-                <div class="cert-chain">
-                  <div class="cert-chain-node">
-                    <div class="node-name">Sarah Chen</div>
-                    <div class="node-role">Primary Transaction Steward — VP</div>
-                  </div>
-                  <div class="cert-chain-arrow">→</div>
-                  <div class="cert-chain-node">
-                    <div class="node-name">James Wilson</div>
-                    <div class="node-role">Safe Harbor — Associate Director</div>
-                  </div>
-                  <div class="cert-chain-arrow">→</div>
-                  <div class="cert-chain-node" style="border-color:rgba(245,158,11,0.35);background:rgba(245,158,11,0.07);">
-                    <div class="node-name" style="color:var(--seal-gold);">Discharged</div>
-                    <div class="node-role">Liability Released</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="cert-divider"></div>
-
-              <!-- ── LIFECYCLE TIMELINE ── -->
-              <div class="cert-section">
-                <div class="cert-section-label">Lifecycle Timeline</div>
-                <div class="cert-field-row">
-                  <div class="cert-field">
-                    <div class="cert-field-label">Qualification Issued</div>
-                    <div class="cert-field-value mono">2026-06-01 09:08:14 UTC</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Safe Harbor Initiated</div>
-                    <div class="cert-field-value mono">2026-06-04 14:22:07 UTC</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Certificate Issued</div>
-                    <div class="cert-field-value mono gold">${ts}</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Total Duration</div>
-                    <div class="cert-field-value">7 Days, 2 Hours</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="cert-divider"></div>
-
-              <!-- ── LIBRARY CARD ── -->
-              <div class="cert-section">
-                <div class="cert-section-label">Offsite Access — Library Card</div>
-                <div class="cert-field-row">
-                  <div class="cert-field">
-                    <div class="cert-field-label">Records Issued</div>
-                    <div class="cert-field-value">1</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">All Records Resolved</div>
-                    <div class="cert-field-value green">Yes — MNPI Accounted For</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Transaction Steward (Offsite)</div>
-                    <div class="cert-field-value">James Wilson</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Checkin Status</div>
-                    <div class="cert-field-value green">On Time — Clean Return</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="cert-divider"></div>
-
-              <!-- ── DOCUMENT TOKENS ── -->
-              <div class="cert-section">
-                <div class="cert-section-label">Document Access — Perimeter Tokens</div>
-                <div class="cert-field-row">
-                  <div class="cert-field">
-                    <div class="cert-field-label">Tokens Issued</div>
-                    <div class="cert-field-value">1</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">All Tokens Revoked</div>
-                    <div class="cert-field-value green">Yes — Automatic</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Revocation Reason</div>
-                    <div class="cert-field-value mono">CHECKIN_COMPLETED</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Perimeter Enforcement</div>
-                    <div class="cert-field-value cyan">Platform-Agnostic</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="cert-divider"></div>
-
-              <!-- ── WATERMARKS ── -->
-              <div class="cert-section">
-                <div class="cert-section-label">Visual Forensic Watermarks</div>
-                <div class="cert-field-row">
-                  <div class="cert-field">
-                    <div class="cert-field-label">Watermarks Issued</div>
-                    <div class="cert-field-value">1</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Attribution Coverage</div>
-                    <div class="cert-field-value green">Active — Permanently Embedded</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Watermark ID</div>
-                    <div class="cert-field-value mono">wmk_9f8e7d6c5b4a3b2c</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Maps to Record</div>
-                    <div class="cert-field-value mono">OAR-2026-0041</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="cert-divider"></div>
-
-              <!-- ── TECHNICAL INTEGRITY ── -->
-              <div class="cert-section">
-                <div class="cert-section-label">Technical Integrity</div>
-
-                <div class="cert-field-row" style="margin-bottom: 1rem;">
-                  <div class="cert-field">
-                    <div class="cert-field-label">Certificate Issued</div>
-                    <div class="cert-field-value mono gold">${ts}</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Certificate Version</div>
-                    <div class="cert-field-value mono">v1.4.0-SLIM</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Four-Party Attestation</div>
-                    <div class="cert-field-value green">Complete — All Signatories Co-Signed</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">ZPCB Verification</div>
-                    <div class="cert-field-value green">Zero-Persistence Confirmed</div>
-                  </div>
-                  <div class="cert-field">
-                    <div class="cert-field-label">Foundation Signature</div>
-                    <div class="cert-field-value cyan">Valid — JMIF</div>
-                  </div>
-                </div>
-
-                <div class="cert-field-label">SHA-256 Evidence Seal</div>
-                <div class="cert-hash" style="margin-bottom: 1rem;">sha256:f7a8b9c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b3c4&nbsp;&nbsp;//&nbsp;&nbsp;epoch:${epoch}</div>
-
-                <div class="cert-field-label">Verification Endpoint</div>
-                <div class="cert-field-value mono" style="font-size:0.75rem; color:var(--muted); word-break:break-all;">https://foundation.slim-api.com/verify/UDT-DEAL-2026-IB-0391</div>
-              </div>
-
-            </div>
-
-            <div class="cert-footer">
-              <div class="cert-footer-status">
-                <div class="dot"></div>
-                Four-Party Attestation — Certificate Valid
-              </div>
-              <a class="cert-verify-link" href="https://foundation.slim-api.com/verify/UDT-DEAL-2026-IB-0391" target="_blank">
-                foundation.slim-api.com/verify/UDT-DEAL-2026-IB-0391 ↗
-              </a>
-            </div>
-
-          </div>
-        </div>
-
-        ${voiceHTML('purple','Purple Coach','Four parties signed this instrument. The finance lead certified the numbers. SLIM certified every document that moved, every door that opened, and every door that closed. Legal counsel certified the universe of known exposure. The ledger bound all three under a seal that cannot be altered after the fact. You don\'t dispute a vital record. When four authorities co-sign the same cryptographic instrument — each for the domain only they can certify — the liability closes the way your grandfather closed a life: completely, irreversibly, with a seal the state accepts. And nothing proprietary left your systems.')}
-
-        <div class="end-of-watch">
-          <div class="ccb-glyph">🌟</div>
-          <div class="end-of-watch-text">
-            <div class="end-of-watch-name">Golden Steward</div>
-            <div class="end-of-watch-line">"Four attestations. One seal. Finance signed. SLIM signed. Counsel signed. The ledger bound it. The deal file came home clean, and the liability is closed. You cannot dispute a vital record. End of watch."</div>
-          </div>
-        </div>
-
-        <div class="att-defs">
-          <div class="att-def">
-            <div class="att-def-label">Legal Attestation</div>
-            <div class="att-def-desc">Legal obligations and disclosures.</div>
-          </div>
-          <div class="att-def">
-            <div class="att-def-label">Financial Attestation</div>
-            <div class="att-def-desc">Financial completeness and stewardship.</div>
-          </div>
-          <div class="att-def">
-            <div class="att-def-label">Counterparty Attestation</div>
-            <div class="att-def-desc">Receipt, acknowledgment, or contest.</div>
-          </div>
-          <div class="att-def">
-            <div class="att-def-label">Integrity Attestation (SLIM)</div>
-            <div class="att-def-desc">Cryptographic binding, timestamping, and lifecycle continuity.</div>
-          </div>
-        </div>
-
-        <div class="controls" style="justify-content:center;">
-          <button class="btn-restart" id="btnRestart">Watch Again</button>
-        </div>
-      </div>
-    `;
-  }
-
-  // ─── RENDER ENGINE ────────────────────────────────────────────────
-  const sceneRenderers = [
-    sceneObligation,
-    sceneBoundary,
-    sceneMemory,
-    sceneHarbor,
-    sceneLibraryCard,
-    sceneManagement,
-    sceneAmendment
-  ];
-
-  function render(){
-    renderProgress();
-    if (current < acts.length){
-      stage.innerHTML = sceneRenderers[current]();
-      const back = document.getElementById('btnBack');
-      const next = document.getElementById('btnNext');
-      if (back) back.addEventListener('click', () => { current = Math.max(0, current - 1); render(); });
-      if (next) next.addEventListener('click', () => { current += 1; render(); });
-    } else {
-      stage.innerHTML = sceneFinal();
-      const restart = document.getElementById('btnRestart');
-      if (restart) restart.addEventListener('click', () => { current = 0; render(); });
-    }
-  }
-
-  render();
+render();
 })();
-</script>
 
+</script>
 </body>
 </html>
